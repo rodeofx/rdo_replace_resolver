@@ -1,0 +1,17 @@
+{
+    "Plugins": [
+        {
+            "Info": {
+                "Types" : {
+                    "UsdHelloResolver" : {
+                        "bases": [ "ArResolver" ]
+                    }
+                }
+            },
+            "LibraryPath": "lib/usdHelloResolver.dylib",
+            "Root": "..",
+            "Name": "UsdHelloResolver",
+            "Type": "library"
+        }
+    ]
+}
