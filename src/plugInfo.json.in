@@ -8,7 +8,7 @@
                     }
                 }
             },
-            "LibraryPath": "lib/usdHelloResolver.dylib",
+            "LibraryPath": "lib/@libraryName@",
             "Root": "..",
             "Name": "UsdHelloResolver",
             "Type": "library"

@@ -19,12 +19,19 @@ target_link_libraries(${USDPLUGIN_NAME}
   ar
 )
 
+set(libraryName ${USDPLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX})
+
+configure_file(
+  plugInfo.json.in 
+  ${CMAKE_BINARY_DIR}/plugInfo.json 
+  @ONLY)
+
 install(
   TARGETS ${USDPLUGIN_NAME}
   DESTINATION ${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/lib
 )
 
 install(
-  FILES plugInfo.json
+  FILES ${CMAKE_BINARY_DIR}/plugInfo.json
   DESTINATION ${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/resources
 )
