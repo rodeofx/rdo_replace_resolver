@@ -3,14 +3,14 @@
         {
             "Info": {
                 "Types" : {
-                    "UsdHelloResolver" : {
+                    "HelloResolver" : {
                         "bases": [ "ArResolver" ]
                     }
                 }
             },
             "LibraryPath": "lib/@libraryName@",
             "Root": "..",
-            "Name": "UsdHelloResolver",
+            "Name": "HelloResolver",
             "Type": "library"
         }
     ]
