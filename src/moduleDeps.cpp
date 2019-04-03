@@ -43,7 +43,7 @@ TF_REGISTRY_FUNCTION(TfScriptModuleLoader) {
         TfToken("vt")
     };
     TfScriptModuleLoader::GetInstance().
-        RegisterLibrary(TfToken("usdHelloResolver"), TfToken("rdo.ar.usdHelloResolver"), reqs);
+        RegisterLibrary(TfToken("helloResolver"), TfToken("rdo.HelloResolver"), reqs);
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE

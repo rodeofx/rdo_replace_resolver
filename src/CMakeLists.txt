@@ -1,4 +1,4 @@
-set(USDPLUGIN_NAME usdHelloResolver)
+set(USDPLUGIN_NAME helloResolver)
 
 add_library(${USDPLUGIN_NAME}
     SHARED
@@ -54,8 +54,18 @@ install(
 
 
 # Python bindings
+if (PXR_ENABLE_PYTHON_SUPPORT)
+
 set(USDPLUGIN_PYTHON_NAME _${USDPLUGIN_NAME})
 
+string(REPLACE "_" "" LIBNAME ${USDPLUGIN_PYTHON_NAME})
+string(SUBSTRING ${LIBNAME} 0 1 LIBNAME_FL)
+string(TOUPPER ${LIBNAME_FL} LIBNAME_FL)
+string(SUBSTRING ${LIBNAME} 1 -1 LIBNAME_SUFFIX)
+set(MODULE_NAME "${LIBNAME_FL}${LIBNAME_SUFFIX}")
+
+message(${USDPLUGIN_PYTHON_NAME})
+message(${MODULE_NAME})
 
 add_library(${USDPLUGIN_PYTHON_NAME}
     SHARED
@@ -65,6 +75,8 @@ add_library(${USDPLUGIN_PYTHON_NAME}
     wrapHelloResolverContext.cpp
 )
 
+# On OSX "dylib" does not work to import python module
+# TODO: windows support
 set_target_properties(${USDPLUGIN_PYTHON_NAME} PROPERTIES SUFFIX ".so")
 
 set_target_properties(${USDPLUGIN_PYTHON_NAME}
@@ -82,15 +94,21 @@ target_link_libraries(${USDPLUGIN_PYTHON_NAME}
   ${USDPLUGIN_NAME}
 )
 
-set(INSTALL_PYTHONMODULE_DIR  ${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/lib/python2.7/site-packages/rdo)
-set(INSTALL_WRAPPER_DIR ${INSTALL_PYTHONMODULE_DIR}/usdHelloResolver)
+set(PYTHON_PACKAGE_RELATIVE_PATH lib/python2.7/site-packages/rdo)
+set(INSTALL_PYTHONPACKAGE_DIR  ${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/${PYTHON_PACKAGE_RELATIVE_PATH})
+set(INSTALL_WRAPPER_DIR ${INSTALL_PYTHONPACKAGE_DIR}/${MODULE_NAME})
 
 install(
   TARGETS ${USDPLUGIN_PYTHON_NAME}
   DESTINATION ${INSTALL_WRAPPER_DIR}
 )
 
+file(WRITE ${INSTALL_PYTHONPACKAGE_DIR}/__init__.py "''' helloResolver package '''")
+
 install(
   FILES __init__.py
   DESTINATION ${INSTALL_WRAPPER_DIR}
 )
+
+
+endif (PXR_ENABLE_PYTHON_SUPPORT)

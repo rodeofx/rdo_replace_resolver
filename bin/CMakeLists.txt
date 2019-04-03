@@ -12,6 +12,6 @@ target_compile_features(${APP_NAME}
 target_link_libraries(${APP_NAME} PUBLIC 
 	ar
 	usd
-	usdHelloResolver)
+	helloResolver)
 
 install(TARGETS ${APP_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
