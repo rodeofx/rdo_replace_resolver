@@ -41,9 +41,7 @@ _Repr(const HelloResolverContext& ctx)
 {
     std::string repr = TF_PY_REPR_PREFIX;
     repr += "HelloResolverContext(";
-    if (!ctx.GetSearchPath().empty()) {
-        repr += TfPyRepr(ctx.GetSearchPath());
-    }
+    repr += ctx.GetAsString();
     repr += ")";
     return repr;
 }

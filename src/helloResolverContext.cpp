@@ -72,12 +72,14 @@ HelloResolverContext::GetAsString() const
     }
 
     if( _oldAndNewStrings.size() > 0) {
-        result += "\nTo be replaced: ";
+        result += "\nOld to new token: ";
+        result += "[";
         for (auto it = _oldAndNewStrings.begin(); it != _oldAndNewStrings.end(); ++it) 
         {
-            result += "\n    " + it->first + " -> ";
+            result += "\n    " + it->first + ": ";
             result += it->second;
-        }    
+        }
+        result += "\n]";
     }
     return result;
 }
