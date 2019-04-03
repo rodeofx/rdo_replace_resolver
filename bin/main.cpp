@@ -14,17 +14,18 @@ PXR_NAMESPACE_USING_DIRECTIVE
 int main(int argc, const char** argv)
 {
     ArSetPreferredResolver("HelloResolver");
-    HelloResolverContext ctx({"/tmp/local", "/tmp/installed"});
+    HelloResolverContext context({"/tmp/local", "/tmp/installed"});
+    context.ToReplace("o_v1", "o_v2");
+
+    std::cout << context.GetAsString() <<  std::endl;
     {
         // Bind the context object:
-        ArResolverContextBinder binder(ctx);
+        ArResolverContextBinder binder(context);
 
-        // std::string resolvedPath = ArGetUnderlyingResolver().Resolve("foo.usda");
-        // std::cout << resolvedPath << '\n';
+        std::string path = "foo_v1.usda";
+        std::string resolvedPath = ArGetResolver().Resolve(path);
+        std::cout << path << " resolved to: " << resolvedPath << '\n';
     }
-
-    HelloResolverContext ctx2({"FOO", "BAR"});
-    ArResolverContextBinder binder2(ctx2);
 
     return 0;
 }

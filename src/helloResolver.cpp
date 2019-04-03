@@ -145,6 +145,24 @@ _Resolve(
     return TfPathExists(resolvedPath) ? resolvedPath : std::string();
 }
 
+std::string _ReplaceFromContext(const HelloResolverContext& ctx, const std::string& path)
+
+{
+    std::string result = path;
+
+    auto oldAndNewStrings = ctx.GetStringsToReplace();
+    for (auto it = oldAndNewStrings.begin(); it != oldAndNewStrings.end(); ++it)
+    {
+        std::size_t found = path.find(it->first);
+        if(found != std::string::npos) {
+            result.replace(found, it->first.size(), it->second);
+            break;
+        }
+    }
+
+    return result;
+}
+
 std::string
 HelloResolver::_ResolveNoCache(const std::string& path)
 {
@@ -168,7 +186,10 @@ HelloResolver::_ResolveNoCache(const std::string& path)
             for (const HelloResolverContext* ctx : contexts) {
                 if (ctx) {
                     for (const auto& searchPath : ctx->GetSearchPath()) {
-                        resolvedPath = _Resolve(searchPath, path);
+                        std::string updatedPath = _ReplaceFromContext(*ctx, path);
+                        printf("path: %s\n", path.c_str());
+                        printf("updatedPath: %s\n", updatedPath.c_str());
+                        resolvedPath = _Resolve(searchPath, updatedPath);
                         if (!resolvedPath.empty()) {
                             return resolvedPath;
                         }

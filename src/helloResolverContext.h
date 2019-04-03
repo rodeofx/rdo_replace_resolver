@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 PXR_NAMESPACE_OPEN_SCOPE
 
@@ -22,6 +23,10 @@ public:
     /// Elements in \p searchPath should be absolute paths. If they are not,
     /// they will be anchored to the current working directory.
     AR_API HelloResolverContext(const std::vector<std::string>& searchPath);
+
+    AR_API void ToReplace(const std::string& oldStr, const std::string& newStr);
+
+    const std::map<std::string, std::string>& GetStringsToReplace() const { return _oldAndNewStrings; }
 
     AR_API bool operator<(const HelloResolverContext& rhs) const;
     AR_API bool operator==(const HelloResolverContext& rhs) const;
@@ -38,6 +43,7 @@ public:
 
 private:
     std::vector<std::string> _searchPath;
+    std::map<std::string, std::string> _oldAndNewStrings;
 };
 
 AR_API size_t 

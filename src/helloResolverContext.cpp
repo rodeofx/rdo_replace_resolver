@@ -33,6 +33,13 @@ HelloResolverContext::HelloResolverContext(
     }
 }
 
+void HelloResolverContext::ToReplace(const std::string& oldStr, const std::string& newStr)
+{
+    _oldAndNewStrings.emplace(std::piecewise_construct,
+        std::forward_as_tuple(oldStr),
+        std::forward_as_tuple(newStr));
+}
+
 bool
 HelloResolverContext::operator<(const HelloResolverContext& rhs) const
 {
@@ -62,6 +69,15 @@ HelloResolverContext::GetAsString() const
         result += "[\n    ";
         result += TfStringJoin(_searchPath, "\n    ");
         result += "\n]";
+    }
+
+    if( _oldAndNewStrings.size() > 0) {
+        result += "\nTo be replaced: ";
+        for (auto it = _oldAndNewStrings.begin(); it != _oldAndNewStrings.end(); ++it) 
+        {
+            result += "\n    " + it->first + " -> ";
+            result += it->second;
+        }    
     }
     return result;
 }
