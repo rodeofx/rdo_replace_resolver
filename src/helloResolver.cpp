@@ -1,3 +1,4 @@
+#include "debugCodes.h"
 #include "helloResolver.h"
 #include "helloResolverContext.h"
 
@@ -213,7 +214,9 @@ HelloResolver::ResolveWithAssetInfo(
     const std::string& path, 
     ArAssetInfo* assetInfo)
 {
-    printf(">>> Unresolved path: %s\n", path.c_str());
+    TF_DEBUG(HELLORESOLVER_PATH).Msg("Unresolved path \"%s\"\n",
+                                      path.c_str());
+
     if (path.empty()) {
         return path;
     }
@@ -232,7 +235,8 @@ HelloResolver::ResolveWithAssetInfo(
         resolvedPath = _ResolveNoCache(path);
     }
 
-    printf(">>> Resolved path: %s\n", resolvedPath.c_str());
+    TF_DEBUG(HELLORESOLVER_PATH).Msg("Resolved path \"%s\"\n",
+                                      resolvedPath.c_str());
     return resolvedPath;
 }
 

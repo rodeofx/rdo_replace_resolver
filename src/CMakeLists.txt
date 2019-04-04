@@ -2,6 +2,8 @@ set(USDPLUGIN_NAME helloResolver)
 
 add_library(${USDPLUGIN_NAME}
     SHARED
+    debugCodes.cpp
+    debugCodes.h
     helloResolver.cpp
     helloResolver.h
     helloResolverContext.cpp
