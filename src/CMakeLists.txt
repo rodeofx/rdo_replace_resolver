@@ -60,14 +60,13 @@ if (PXR_ENABLE_PYTHON_SUPPORT)
 
 set(USDPLUGIN_PYTHON_NAME _${USDPLUGIN_NAME})
 
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_RPATH}:${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/lib)
+
 string(REPLACE "_" "" LIBNAME ${USDPLUGIN_PYTHON_NAME})
 string(SUBSTRING ${LIBNAME} 0 1 LIBNAME_FL)
 string(TOUPPER ${LIBNAME_FL} LIBNAME_FL)
 string(SUBSTRING ${LIBNAME} 1 -1 LIBNAME_SUFFIX)
 set(MODULE_NAME "${LIBNAME_FL}${LIBNAME_SUFFIX}")
-
-message(${USDPLUGIN_PYTHON_NAME})
-message(${MODULE_NAME})
 
 add_library(${USDPLUGIN_PYTHON_NAME}
     SHARED
@@ -89,7 +88,7 @@ target_compile_definitions(${USDPLUGIN_PYTHON_NAME}
   PRIVATE
     MFB_PACKAGE_NAME=${USDPLUGIN_NAME}
     MFB_ALT_PACKAGE_NAME=${USDPLUGIN_NAME}
-    MFB_PACKAGE_MODULE=rdo.Ar
+    MFB_PACKAGE_MODULE=rdo.${MODULE_NAME}
 )
 
 target_link_libraries(${USDPLUGIN_PYTHON_NAME}
@@ -112,5 +111,25 @@ install(
   DESTINATION ${INSTALL_WRAPPER_DIR}
 )
 
+# Tests
+enable_testing()
+set(_testPYTHONPATH "PYTHONPATH=${INSTALL_PYTHONPACKAGE_DIR}/..:${USD_ROOT}/lib/python:$ENV{PYTHONPATH}")
+set(_testPXR_PLUGINPATH_NAME "PXR_PLUGINPATH_NAME=${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/resources")
+
+if(APPLE)
+  # TODO: In theory it should not be necessary to set DYLD_LIBRARY_PATH.
+  # I could not figure out how to make plugInfo work with python bindings on my Mac.
+  set(_testDYLD_LIBRARY_PATH "DYLD_LIBRARY_PATH=${USD_ROOT}/lib/:${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/lib")
+endif()
+
+install(
+  FILES testenv/testHelloResolver.py
+  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test
+)
+
+add_test(
+    NAME helloTest
+    COMMAND env ${_testDYLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python testHelloResolver.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
 
 endif (PXR_ENABLE_PYTHON_SUPPORT)
