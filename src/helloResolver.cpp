@@ -185,11 +185,9 @@ HelloResolver::_ResolveNoCache(const std::string& path)
                 {_GetCurrentContext(), &_fallbackContext};
             for (const HelloResolverContext* ctx : contexts) {
                 if (ctx) {
+                    resolvedPath = _ReplaceFromContext(*ctx, path);
                     for (const auto& searchPath : ctx->GetSearchPath()) {
-                        std::string updatedPath = _ReplaceFromContext(*ctx, path);
-                        printf("path: %s\n", path.c_str());
-                        printf("updatedPath: %s\n", updatedPath.c_str());
-                        resolvedPath = _Resolve(searchPath, updatedPath);
+                        resolvedPath = _Resolve(searchPath, resolvedPath);
                         if (!resolvedPath.empty()) {
                             return resolvedPath;
                         }
@@ -215,20 +213,27 @@ HelloResolver::ResolveWithAssetInfo(
     const std::string& path, 
     ArAssetInfo* assetInfo)
 {
+    printf(">>> Unresolved path: %s\n", path.c_str());
     if (path.empty()) {
         return path;
     }
 
+    std::string resolvedPath;
     if (_CachePtr currentCache = _GetCurrentCache()) {
         _Cache::_PathToResolvedPathMap::accessor accessor;
         if (currentCache->_pathToResolvedPathMap.insert(
                 accessor, std::make_pair(path, std::string()))) {
             accessor->second = _ResolveNoCache(path);
         }
-        return accessor->second;
+        resolvedPath = accessor->second;
     }
 
-    return _ResolveNoCache(path);
+    if (resolvedPath.empty()) {
+        resolvedPath = _ResolveNoCache(path);
+    }
+
+    printf(">>> Resolved path: %s\n", resolvedPath.c_str());
+    return resolvedPath;
 }
 
 std::string
