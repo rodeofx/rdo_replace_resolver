@@ -123,12 +123,22 @@ if(APPLE)
 endif()
 
 install(
+  FILES testenv/testAsArDefaultResolver.py
+  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test
+)
+
+add_test(
+    NAME testAsArDefaultResolver
+    COMMAND env ${_testDYLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python testAsArDefaultResolver.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
+
+install(
   FILES testenv/testHelloResolver.py
   DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test
 )
 
 add_test(
-    NAME helloTest
+    NAME testHelloResolver
     COMMAND env ${_testDYLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python testHelloResolver.py
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
 

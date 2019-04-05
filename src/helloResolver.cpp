@@ -186,9 +186,9 @@ HelloResolver::_ResolveNoCache(const std::string& path)
                 {_GetCurrentContext(), &_fallbackContext};
             for (const HelloResolverContext* ctx : contexts) {
                 if (ctx) {
-                    resolvedPath = _ReplaceFromContext(*ctx, path);
+                    std::string replacedPath = _ReplaceFromContext(*ctx, path);
                     for (const auto& searchPath : ctx->GetSearchPath()) {
-                        resolvedPath = _Resolve(searchPath, resolvedPath);
+                        resolvedPath = _Resolve(searchPath, replacedPath);
                         if (!resolvedPath.empty()) {
                             return resolvedPath;
                         }
