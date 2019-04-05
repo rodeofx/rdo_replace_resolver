@@ -15,7 +15,7 @@ int main(int argc, const char** argv)
 {
     ArSetPreferredResolver("HelloResolver");
     HelloResolverContext context({"/tmp/local", "/tmp/installed"});
-    context.ToReplace("o_v1", "o_v2");
+    context.AddReplacePair("o_v1", "o_v2");
 
     std::cout << context.GetAsString() <<  std::endl;
     {

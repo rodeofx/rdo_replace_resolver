@@ -33,7 +33,7 @@ HelloResolverContext::HelloResolverContext(
     }
 }
 
-void HelloResolverContext::ToReplace(const std::string& oldStr, const std::string& newStr)
+void HelloResolverContext::AddReplacePair(const std::string& oldStr, const std::string& newStr)
 {
     _oldAndNewStrings.emplace(std::piecewise_construct,
         std::forward_as_tuple(oldStr),

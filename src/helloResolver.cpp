@@ -151,11 +151,14 @@ std::string _ReplaceFromContext(const HelloResolverContext& ctx, const std::stri
 {
     std::string result = path;
 
-    auto oldAndNewStrings = ctx.GetStringsToReplace();
+    auto oldAndNewStrings = ctx.GetStringsAddReplacePair();
     for (auto it = oldAndNewStrings.begin(); it != oldAndNewStrings.end(); ++it)
     {
+
         std::size_t found = path.find(it->first);
         if(found != std::string::npos) {
+            TF_DEBUG(HELLORESOLVER_REPLACE).Msg("replacing \"%s\" by \"%s\"\n",
+                                          it->first.c_str(), it->second.c_str());
             result.replace(found, it->first.size(), it->second);
             break;
         }

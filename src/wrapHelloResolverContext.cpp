@@ -69,7 +69,7 @@ wrapHelloResolverContext()
         .def("GetSearchPath", &This::GetSearchPath,
              return_value_policy<return_by_value>())
 
-        .def("ToReplace", &This::ToReplace,
+        .def("AddReplacePair", &This::AddReplacePair,
              return_value_policy<return_by_value>())
 
         .def("__str__", &This::GetAsString)

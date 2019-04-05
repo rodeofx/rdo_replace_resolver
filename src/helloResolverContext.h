@@ -24,9 +24,9 @@ public:
     /// they will be anchored to the current working directory.
     AR_API HelloResolverContext(const std::vector<std::string>& searchPath);
 
-    AR_API void ToReplace(const std::string& oldStr, const std::string& newStr);
+    AR_API void AddReplacePair(const std::string& oldStr, const std::string& newStr);
 
-    const std::map<std::string, std::string>& GetStringsToReplace() const { return _oldAndNewStrings; }
+    const std::map<std::string, std::string>& GetStringsAddReplacePair() const { return _oldAndNewStrings; }
 
     AR_API bool operator<(const HelloResolverContext& rhs) const;
     AR_API bool operator==(const HelloResolverContext& rhs) const;
