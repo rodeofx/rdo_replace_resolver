@@ -11,11 +11,21 @@ import shutil
 
 
 def _PrepAssets(assemblyRepo, componentRepo):
-    # Create foo_v1.usda
-    fooRelativePath = 'foo_v1.usda'
-    fooPath = os.path.join(componentRepo, fooRelativePath)
+    ''' Construct the following usd files:
+    
+    assembly_v1.usda            component_v1.usda
+        /ASSEMBLY  -----(R)----->   def "COMPONENT"
+                                                    
+                                component_v2.usda
+                                    subLayers = "component_v1.usda"
+                                    over "COMPONENT"
+    '''
+
+    # Create component_v1.usda
+    compRelativePath = 'component_v1.usda'
+    fooPath = os.path.join(componentRepo, compRelativePath)
     stage = Usd.Stage.CreateNew(fooPath)
-    prim = stage.DefinePrim('/foo')
+    prim = stage.DefinePrim('/COMPONENT')
     Usd.ModelAPI(prim).SetKind(Kind.Tokens.component)
 
     stage.SetDefaultPrim(prim)
@@ -23,13 +33,13 @@ def _PrepAssets(assemblyRepo, componentRepo):
     radiusAttr.Set(1.0)
     stage.Save()
 
-    # Create foo_v2.usda
-    fooRelativePath2 = 'foo_v2.usda'
+    # Create component_v2.usda
+    fooRelativePath2 = 'component_v2.usda'
     fooPath2 = os.path.join(componentRepo, fooRelativePath2)
     stage = Usd.Stage.CreateNew(fooPath2)
-    stage.GetRootLayer().subLayerPaths = [fooRelativePath]
+    stage.GetRootLayer().subLayerPaths = [compRelativePath]
 
-    prim = stage.GetPrimAtPath('/foo')
+    prim = stage.GetPrimAtPath('/COMPONENT')
     Usd.ModelAPI(prim).SetKind(Kind.Tokens.component)
 
     stage.SetDefaultPrim(prim)
@@ -37,14 +47,14 @@ def _PrepAssets(assemblyRepo, componentRepo):
     radiusAttr.Set(2.0)
     stage.Save()
 
-    # Create main_v1.usda
-    assemblyPath = os.path.join(assemblyRepo, 'main_v1.usda')
+    # Create assembly_v1.usda
+    assemblyPath = os.path.join(assemblyRepo, 'assembly_v1.usda')
     stage = Usd.Stage.CreateNew(assemblyPath)
-    prim = stage.DefinePrim('/MAIN')
+    prim = stage.DefinePrim('/ASSEMBLY')
     Usd.ModelAPI(prim).SetKind(Kind.Tokens.assembly)
     stage.SetDefaultPrim(prim)
 
-    prim.GetReferences().AddReference("component/" + fooRelativePath)
+    prim.GetReferences().AddReference("component/" + compRelativePath)
     stage.Save()
 
 
@@ -68,29 +78,35 @@ class TestHelloResolver(unittest.TestCase):
         # Verify that the underlying resolver is a HelloResolver.
         assert(isinstance(Ar.GetUnderlyingResolver(), HelloResolver.HelloResolver))
 
+        # Cleanup files from previous test
+        testDir = os.path.abspath(TestHelloResolver.rootDir)
+        if os.path.isdir(testDir):
+            shutil.rmtree(testDir)
+
         _PrepAssets(TestHelloResolver.assemblyRepo, TestHelloResolver.componentRepo)
 
     def test_ResolveWithContext(self):
         context = HelloResolver.HelloResolverContext([os.path.abspath(TestHelloResolver.rootDir)])
 
-        context.ToReplace('component/foo_v1.usda', 'component/foo_v2.usda')
+        context.ToReplace('component/component_v1.usda', 'component/component_v2.usda')
 
         with Ar.ResolverContextBinder(context):
             resolver = Ar.GetResolver()
 
-            expectedPath = os.path.join(TestHelloResolver.rootDir, 'component', 'foo_v2.usda')
+            expectedPath = os.path.join(TestHelloResolver.rootDir, 'component', 'component_v2.usda')
             self.assertEqual(
-                resolver.Resolve('component/foo_v1.usda'),
+                resolver.Resolve('component/component_v1.usda'),
                 os.path.abspath(expectedPath))
 
     def test_ResolveFromStage(self):
+        ''' Replace reference to component v1 by v2 and open stage to check radius value '''
         context = HelloResolver.HelloResolverContext([os.path.abspath(TestHelloResolver.rootDir)])
-        context.ToReplace('component/foo_v1.usda', 'component/foo_v2.usda')
-        
-        filePath = os.path.join(TestHelloResolver.assemblyRepo, 'main_v1.usda')
+        context.ToReplace('component/component_v1.usda', 'component/component_v2.usda')
+
+        filePath = os.path.join(TestHelloResolver.assemblyRepo, 'assembly_v1.usda')
         stage = Usd.Stage.Open(filePath, pathResolverContext=context)
 
-        prim = stage.GetPrimAtPath('/MAIN')
+        prim = stage.GetPrimAtPath('/ASSEMBLY')
         radiusAttr = prim.GetAttribute("radius")
         
         self.assertEqual(radiusAttr.Get(), 2.0)
