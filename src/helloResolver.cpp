@@ -2,6 +2,7 @@
 #include "helloResolver.h"
 #include "helloResolverContext.h"
 
+#include <pxr/base/js/json.h>
 #include <pxr/usd/ar/defineResolver.h>
 #include <pxr/usd/ar/filesystemAsset.h>
 #include <pxr/usd/ar/assetInfo.h>
@@ -17,10 +18,13 @@
 #include <pxr/base/vt/value.h>
 
 #include <tbb/concurrent_hash_map.h>
+#include <fstream>
 
 PXR_NAMESPACE_OPEN_SCOPE
 
 AR_DEFINE_RESOLVER(HelloResolver, ArResolver);
+
+static const std::string replaceFileName = "replace.json";
 
 static bool
 _IsFileRelative(const std::string& path) {
@@ -29,14 +33,7 @@ _IsFileRelative(const std::string& path) {
 
 static TfStaticData<std::vector<std::string>> _SearchPath;
 
-struct HelloResolver::_Cache
-{
-    using _PathToResolvedPathMap = 
-        tbb::concurrent_hash_map<std::string, std::string>;
-    _PathToResolvedPathMap _pathToResolvedPathMap;
-};
-
-HelloResolver::HelloResolver()
+std::vector<std::string> _GetSearchPaths() 
 {
     std::vector<std::string> searchPath = *_SearchPath;
 
@@ -48,7 +45,19 @@ HelloResolver::HelloResolver()
             searchPath.end(), envSearchPath.begin(), envSearchPath.end());
     }
 
-    _fallbackContext = HelloResolverContext(searchPath);
+    return searchPath;
+}
+
+struct HelloResolver::_Cache
+{
+    using _PathToResolvedPathMap = 
+        tbb::concurrent_hash_map<std::string, std::string>;
+    _PathToResolvedPathMap _pathToResolvedPathMap;
+};
+
+HelloResolver::HelloResolver()
+{
+    _fallbackContext = HelloResolverContext(_GetSearchPaths());
 }
 
 HelloResolver::~HelloResolver()
@@ -157,8 +166,6 @@ std::string _ReplaceFromContext(const HelloResolverContext& ctx, const std::stri
 
         std::size_t found = path.find(it->first);
         if(found != std::string::npos) {
-            TF_DEBUG(HELLORESOLVER_REPLACE).Msg("replacing \"%s\" by \"%s\"\n",
-                                          it->first.c_str(), it->second.c_str());
             result.replace(found, it->first.size(), it->second);
             break;
         }
@@ -185,8 +192,14 @@ HelloResolver::_ResolveNoCache(const std::string& path)
         // If that fails and the path is a search path, try to resolve
         // against each directory in the specified search paths.
         if (IsSearchPath(path)) {
+            auto currentContext = _GetCurrentContext();
+            if(currentContext) {
+                TF_DEBUG(HELLORESOLVER_REPLACE).Msg(
+                    "HelloResolverContext: \"%s\"\n",
+                    ArResolverContext(*currentContext).GetDebugString().c_str());
+            }
             const HelloResolverContext* contexts[2] =
-                {_GetCurrentContext(), &_fallbackContext};
+                {currentContext, &_fallbackContext};
             for (const HelloResolverContext* ctx : contexts) {
                 if (ctx) {
                     std::string replacedPath = _ReplaceFromContext(*ctx, path);
@@ -332,10 +345,39 @@ HelloResolver::CreateDefaultContextForAsset(
         return ArResolverContext(HelloResolverContext());
     }
 
+    auto context = HelloResolverContext(_GetSearchPaths());
+    
     std::string assetDir = TfGetPathName(TfAbsPath(filePath));
     
-    return ArResolverContext(HelloResolverContext(
-                                 std::vector<std::string>(1, assetDir)));
+    std::string replaceFilePath = TfNormPath(
+        TfStringCatPaths(assetDir, replaceFileName));
+    
+    std::ifstream ifs(replaceFilePath);
+    if (ifs) {
+        TF_DEBUG(HELLORESOLVER_REPLACE).Msg("Replace file found: \"%s\"\n", 
+                                            replaceFilePath.c_str());
+
+        JsParseError error;
+        const JsValue value = JsParseStream(ifs, &error);
+        ifs.close();
+
+        if (!value.IsNull() && value.IsArray()) {
+            for(const auto& pair : value.GetJsArray())
+            {
+                if(pair.IsArray()) {
+                    context.AddReplacePair(
+                        pair.GetJsArray()[0].GetString(), pair.GetJsArray()[1].GetString());
+                }
+            }
+        }
+        else
+        {
+            fprintf(stderr, "Error: parse error at %s:%d:%d: %s\n",
+                replaceFilePath.c_str(), error.line, error.column, error.reason.c_str());
+        }
+    }
+
+    return ArResolverContext(context);
 }
 
 void 
