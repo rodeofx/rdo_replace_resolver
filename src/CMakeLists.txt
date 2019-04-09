@@ -12,6 +12,7 @@ add_library(${USDPLUGIN_NAME}
 
 target_link_libraries(${USDPLUGIN_NAME}
     ar
+    sdf
 )
 
 target_include_directories(${USDPLUGIN_NAME} INTERFACE
