@@ -1,6 +1,6 @@
-from . import _helloResolver
+from . import _replaceResolver
 from pxr import Tf
-Tf.PrepareModule(_helloResolver, locals())
+Tf.PrepareModule(_replaceResolver, locals())
 del Tf
 
 try:

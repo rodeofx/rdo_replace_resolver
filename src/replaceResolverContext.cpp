@@ -1,7 +1,6 @@
-#include "helloResolverContext.h"
+#include "replaceResolverContext.h"
 
 #include <pxr/pxr.h>
-
 #include <pxr/base/tf/diagnostic.h>
 #include <pxr/base/tf/hash.h>
 #include <pxr/base/tf/ostreamMethods.h>
@@ -12,7 +11,7 @@
 
 PXR_NAMESPACE_OPEN_SCOPE
 
-HelloResolverContext::HelloResolverContext(
+ReplaceResolverContext::ReplaceResolverContext(
     const std::vector<std::string>& searchPath)
 {
     _searchPath.reserve(searchPath.size());
@@ -33,7 +32,7 @@ HelloResolverContext::HelloResolverContext(
     }
 }
 
-void HelloResolverContext::AddReplacePair(const std::string& oldStr, const std::string& newStr)
+void ReplaceResolverContext::AddReplacePair(const std::string& oldStr, const std::string& newStr)
 {
     _oldAndNewStrings.emplace(std::piecewise_construct,
         std::forward_as_tuple(oldStr),
@@ -41,25 +40,25 @@ void HelloResolverContext::AddReplacePair(const std::string& oldStr, const std::
 }
 
 bool
-HelloResolverContext::operator<(const HelloResolverContext& rhs) const
+ReplaceResolverContext::operator<(const ReplaceResolverContext& rhs) const
 {
     return _searchPath < rhs._searchPath;
 }
 
 bool 
-HelloResolverContext::operator==(const HelloResolverContext& rhs) const
+ReplaceResolverContext::operator==(const ReplaceResolverContext& rhs) const
 {
     return _searchPath == rhs._searchPath;
 }
 
 bool 
-HelloResolverContext::operator!=(const HelloResolverContext& rhs) const
+ReplaceResolverContext::operator!=(const ReplaceResolverContext& rhs) const
 {
     return !(*this == rhs);
 }
 
 std::string 
-HelloResolverContext::GetAsString() const
+ReplaceResolverContext::GetAsString() const
 {
     std::string result = "Search path: ";
     if (_searchPath.empty()) {
@@ -85,7 +84,7 @@ HelloResolverContext::GetAsString() const
 }
 
 size_t 
-hash_value(const HelloResolverContext& context)
+hash_value(const ReplaceResolverContext& context)
 {
     size_t hash = 0;
     for (const std::string& p : context.GetSearchPath()) {

@@ -3,14 +3,14 @@
         {
             "Info": {
                 "Types" : {
-                    "HelloResolver" : {
+                    "ReplaceResolver" : {
                         "bases": [ "ArResolver" ]
                     }
                 }
             },
             "LibraryPath": "lib/@libraryName@",
             "Root": "..",
-            "Name": "HelloResolver",
+            "Name": "ReplaceResolver",
             "Type": "library"
         }
     ]

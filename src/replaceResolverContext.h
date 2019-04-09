@@ -1,6 +1,6 @@
 
-#ifndef USD_HELLO_RESOLVER_CONTEXT_H
-#define USD_HELLO_RESOLVER_CONTEXT_H
+#ifndef USD_REPLACE_RESOLVER_CONTEXT_H
+#define USD_REPLACE_RESOLVER_CONTEXT_H
 
 #include <pxr/pxr.h>
 #include <pxr/usd/ar/api.h>
@@ -13,24 +13,24 @@
 PXR_NAMESPACE_OPEN_SCOPE
 
 
-class HelloResolverContext
+class ReplaceResolverContext
 {
 public:
     /// Default construct a context with no search path.
-    HelloResolverContext() = default;        
+    ReplaceResolverContext() = default;        
 
     /// Construct a context with the given \p searchPath.
     /// Elements in \p searchPath should be absolute paths. If they are not,
     /// they will be anchored to the current working directory.
-    AR_API HelloResolverContext(const std::vector<std::string>& searchPath);
+    AR_API ReplaceResolverContext(const std::vector<std::string>& searchPath);
 
     AR_API void AddReplacePair(const std::string& oldStr, const std::string& newStr);
 
     const std::map<std::string, std::string>& GetStringsAddReplacePair() const { return _oldAndNewStrings; }
 
-    AR_API bool operator<(const HelloResolverContext& rhs) const;
-    AR_API bool operator==(const HelloResolverContext& rhs) const;
-    AR_API bool operator!=(const HelloResolverContext& rhs) const;
+    AR_API bool operator<(const ReplaceResolverContext& rhs) const;
+    AR_API bool operator==(const ReplaceResolverContext& rhs) const;
+    AR_API bool operator!=(const ReplaceResolverContext& rhs) const;
 
     /// Return this context's search path.
     const std::vector<std::string>& GetSearchPath() const
@@ -47,16 +47,16 @@ private:
 };
 
 AR_API size_t 
-hash_value(const HelloResolverContext& context);
+hash_value(const ReplaceResolverContext& context);
 
 inline std::string 
-ArGetDebugString(const HelloResolverContext& context)
+ArGetDebugString(const ReplaceResolverContext& context)
 {
     return context.GetAsString();
 }
 
-AR_DECLARE_RESOLVER_CONTEXT(HelloResolverContext);
+AR_DECLARE_RESOLVER_CONTEXT(ReplaceResolverContext);
 
 PXR_NAMESPACE_CLOSE_SCOPE
 
-#endif // USD_HELLO_RESOLVER_CONTEXT_H
+#endif // USD_REPLACE_RESOLVER_CONTEXT_H

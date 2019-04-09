@@ -1,13 +1,13 @@
-set(USDPLUGIN_NAME helloResolver)
+set(USDPLUGIN_NAME replaceResolver)
 
 add_library(${USDPLUGIN_NAME}
     SHARED
     debugCodes.cpp
     debugCodes.h
-    helloResolver.cpp
-    helloResolver.h
-    helloResolverContext.cpp
-    helloResolverContext.h
+    replaceResolver.cpp
+    replaceResolver.h
+    replaceResolverContext.cpp
+    replaceResolverContext.h
     tokens.cpp
     tokens.h
 )
@@ -47,7 +47,7 @@ install(
 
 # Install headers
 install(
-    FILES helloResolverContext.h
+    FILES replaceResolverContext.h
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/include/${USDPLUGIN_NAME}
 )
 
@@ -75,8 +75,8 @@ add_library(${USDPLUGIN_PYTHON_NAME}
     SHARED
     module.cpp
     moduleDeps.cpp
-    wrapHelloResolver.cpp
-    wrapHelloResolverContext.cpp
+    wrapReplaceResolver.cpp
+    wrapReplaceResolverContext.cpp
     wrapTokens.cpp
 )
 
@@ -108,7 +108,7 @@ install(
     DESTINATION ${INSTALL_WRAPPER_DIR}
 )
 
-file(WRITE ${INSTALL_PYTHONPACKAGE_DIR}/__init__.py "''' helloResolver package '''")
+file(WRITE ${INSTALL_PYTHONPACKAGE_DIR}/__init__.py "''' replaceResolver package '''")
 
 install(
     FILES __init__.py
@@ -137,13 +137,13 @@ add_test(
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
 
 install(
-    FILES testenv/testHelloResolver.py
+    FILES testenv/testReplaceResolver.py
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test
 )
 
 add_test(
-    NAME testHelloResolver
-    COMMAND env ${_testDYLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python testHelloResolver.py
+    NAME testReplaceResolver
+    COMMAND env ${_testDYLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python testReplaceResolver.py
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
 
 endif (PXR_ENABLE_PYTHON_SUPPORT)

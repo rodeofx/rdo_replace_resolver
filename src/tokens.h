@@ -1,5 +1,5 @@
-#ifndef HELLO_RESOLVER_TOKENS_H
-#define HELLO_RESOLVER_TOKENS_H
+#ifndef REPLACE_RESOLVER_TOKENS_H
+#define REPLACE_RESOLVER_TOKENS_H
 
 #include <pxr/base/tf/staticTokens.h>
 #include <pxr/pxr.h>
@@ -9,16 +9,16 @@
 
 PXR_NAMESPACE_OPEN_SCOPE
 
-/// \class HelloResolverTokensType
+/// \class ReplaceResolverTokensType
 ///
-/// \link HelloResolverTokens \endlink provides static, efficient
+/// \link ReplaceResolverTokens \endlink provides static, efficient
 /// \link TfToken TfTokens\endlink for use in all public USD API.
 ///
 /// \code
 ///     gprim.GetMyTokenValuedAttr().Set(UsdGeomTokens->all);
 /// \endcode
-struct HelloResolverTokensType {
-    AR_API HelloResolverTokensType();
+struct ReplaceResolverTokensType {
+    AR_API ReplaceResolverTokensType();
 
     const TfToken replacePairs;
 
@@ -28,12 +28,12 @@ struct HelloResolverTokensType {
     const std::vector<TfToken> allTokens;
 };
 
-/// \var HelloResolverTokens
+/// \var ReplaceResolverTokens
 ///
 /// A global variable with static, efficient \link TfToken TfTokens\endlink
-/// for use in all public USD API.  \sa HelloResolverTokensType
-extern AR_API TfStaticData<HelloResolverTokensType> HelloResolverTokens;
+/// for use in all public USD API.  \sa ReplaceResolverTokensType
+extern AR_API TfStaticData<ReplaceResolverTokensType> ReplaceResolverTokens;
 
 PXR_NAMESPACE_CLOSE_SCOPE
 
-#endif // HELLO_RESOLVER_TOKENS_H
+#endif // REPLACE_RESOLVER_TOKENS_H

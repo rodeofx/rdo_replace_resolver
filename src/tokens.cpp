@@ -2,7 +2,7 @@
 
 PXR_NAMESPACE_OPEN_SCOPE
 
-HelloResolverTokensType::HelloResolverTokensType() :
+ReplaceResolverTokensType::ReplaceResolverTokensType() :
     replacePairs("replacePairs", TfToken::Immortal),
     replaceFileName("replace.json", TfToken::Immortal),
     allTokens({
@@ -11,7 +11,7 @@ HelloResolverTokensType::HelloResolverTokensType() :
 {
 }
 
-TfStaticData<HelloResolverTokensType> HelloResolverTokens;
+TfStaticData<ReplaceResolverTokensType> ReplaceResolverTokens;
 
 PXR_NAMESPACE_CLOSE_SCOPE
 

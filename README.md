@@ -1,1 +1,1 @@
-# usd-hello-resolver
+# replace-resolver

@@ -36,10 +36,10 @@ _AddToken(T& cls, const char* name, const TfToken& token)
 
 } // anonymous
 
-void wrapHelloResolverTokens()
+void wrapReplaceResolverTokens()
 {
-    boost::python::class_<HelloResolverTokensType, boost::noncopyable>
+    boost::python::class_<ReplaceResolverTokensType, boost::noncopyable>
         cls("Tokens", boost::python::no_init);
-    _AddToken(cls, "replacePairs", HelloResolverTokens->replacePairs);
-    _AddToken(cls, "replaceFileName", HelloResolverTokens->replaceFileName);
+    _AddToken(cls, "replacePairs", ReplaceResolverTokens->replacePairs);
+    _AddToken(cls, "replaceFileName", ReplaceResolverTokens->replaceFileName);
 }

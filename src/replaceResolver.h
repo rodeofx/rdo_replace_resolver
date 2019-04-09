@@ -1,7 +1,7 @@
-#ifndef USD_HELLO_RESOLVER_H
-#define USD_HELLO_RESOLVER_H
+#ifndef USD_REPLACE_RESOLVER_H
+#define USD_REPLACE_RESOLVER_H
 
-#include "helloResolverContext.h"
+#include "replaceResolverContext.h"
 
 #include <pxr/pxr.h>
 #include <pxr/usd/ar/api.h>
@@ -18,13 +18,20 @@
 
 PXR_NAMESPACE_OPEN_SCOPE
 
-/// \class HelloResolver
+/// \class ReplaceResolver
 ///
-/// Default asset resolution implementation used when no plugin
-/// implementation is provided.
 ///
 /// In order to resolve assets specified by relative paths, this resolver
-/// implements a simple "search path" scheme. The resolver will anchor the
+/// implements the simple "search path" scheme from the Usd defaultResolver
+/// and a "replace substring" scheme.
+///
+/// The "replace substring" scheme will uses old/new string pairs from
+/// the ReplaceResolverContext to udate any asset path occordingly.
+///     - old asset path: /foo/foo_v1.usda with ["foo_v1", "foo_v2"] pair in context
+///     - resolved asset path: /foo/foo_v2.usda
+///
+/// For the record, the "search path" scheme works as following:
+//  The resolver will anchor the
 /// relative path to a series of directories and return the first absolute
 /// path where the asset exists.
 ///
@@ -32,21 +39,21 @@ PXR_NAMESPACE_OPEN_SCOPE
 /// resolver will then examine the directories specified via the following
 /// mechanisms (in order):
 ///
-///    - The currently-bound HelloResolverContext for the calling thread
-///    - HelloResolver::SetDefaultSearchPath
+///    - The currently-bound ReplaceResolverContext for the calling thread
+///    - ReplaceResolver::SetDefaultSearchPath
 ///    - The environment variable PXR_AR_DEFAULT_SEARCH_PATH. This is
 ///      expected to be a list of directories delimited by the platform's 
 ///      standard path separator.
-///
-class HelloResolver
+/// 
+class ReplaceResolver
     : public ArResolver
 {
 public:
     AR_API 
-    HelloResolver();
+    ReplaceResolver();
 
     AR_API 
-    virtual ~HelloResolver();
+    virtual ~ReplaceResolver();
 
     /// Set the default search path that will be used during asset
     /// resolution. This must be called before the first call
@@ -175,17 +182,17 @@ private:
     using _CachePtr = _PerThreadCache::CachePtr;
     _CachePtr _GetCurrentCache();
 
-    const HelloResolverContext* _GetCurrentContext();
+    const ReplaceResolverContext* _GetCurrentContext();
 
     std::string _ResolveNoCache(const std::string& path);
 
 private:
-    HelloResolverContext _fallbackContext;
+    ReplaceResolverContext _fallbackContext;
     ArResolverContext _defaultContext;
 
     _PerThreadCache _threadCache;
 
-    using _ContextStack = std::vector<const HelloResolverContext*>;
+    using _ContextStack = std::vector<const ReplaceResolverContext*>;
     using _PerThreadContextStack = 
         tbb::enumerable_thread_specific<_ContextStack>;
     _PerThreadContextStack _threadContextStack;
@@ -194,4 +201,4 @@ private:
 
 PXR_NAMESPACE_CLOSE_SCOPE
 
-#endif // USD_HELLO_RESOLVER_H
+#endif // USD_REPLACE_RESOLVER_H

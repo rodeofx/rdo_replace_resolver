@@ -27,7 +27,7 @@
 
 import os
 from pxr import Ar
-from rdo import HelloResolver
+from rdo import ReplaceResolver
 
 import unittest
 import shutil
@@ -42,17 +42,17 @@ class TestArDefaultResolver(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Force Ar to use the hello resolver implementation.
-        Ar.SetPreferredResolver('HelloResolver')
+        Ar.SetPreferredResolver('ReplaceResolver')
 
         # Set up default search path for test_ResolveSearchPaths below. This
         # must be done before any calls to Ar.GetResolver()
-        HelloResolver.HelloResolver.SetDefaultSearchPath([
+        ReplaceResolver.ReplaceResolver.SetDefaultSearchPath([
             os.path.abspath('test1'),
             os.path.abspath('test1/test2')
         ])
 
-        # Verify that the underlying resolver is a HelloResolver.
-        assert(isinstance(Ar.GetUnderlyingResolver(), HelloResolver.HelloResolver))
+        # Verify that the underlying resolver is a ReplaceResolver.
+        assert(isinstance(Ar.GetUnderlyingResolver(), ReplaceResolver.ReplaceResolver))
 
     def test_AnchorRelativePath(self):
         r = Ar.GetResolver()
@@ -119,7 +119,7 @@ class TestArDefaultResolver(unittest.TestCase):
             print >>ofp, 'Garbage'
         
         resolver = Ar.GetResolver()
-        context = HelloResolver.HelloResolverContext([
+        context = ReplaceResolver.ReplaceResolverContext([
             os.path.abspath('test3'),
             os.path.abspath('test3/test4')
         ])

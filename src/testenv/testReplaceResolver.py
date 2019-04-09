@@ -4,7 +4,7 @@ from pxr import Sdf
 from pxr import Usd
 from pxr import Vt
 
-from rdo import HelloResolver
+from rdo import ReplaceResolver
 
 import os
 import unittest
@@ -28,7 +28,7 @@ def _PrepAssets(rootDir, assemblyRepo, componentRepo):
     composed accordingly when our resolver replace versions.
     '''
 
-    context = HelloResolver.HelloResolverContext([os.path.abspath(rootDir)])
+    context = ReplaceResolver.ReplaceResolverContext([os.path.abspath(rootDir)])
 
     # Create c1_v1.usda
     c1_v1_relativePath = 'c1_v1.usda'
@@ -92,14 +92,14 @@ def _PrepAssets(rootDir, assemblyRepo, componentRepo):
     stage = Usd.Stage.CreateNew(_path, context)
     pair1 = ['component/c1_v1.usda', 'component/c1_v2.usda']
     pair2 = ['assembly/b1_v1.usda', 'assembly/b1_v2.usda']
-    stage.SetMetadata('customLayerData', {HelloResolver.Tokens.replacePairs: Vt.StringArray(pair1 + pair2)})
+    stage.SetMetadata('customLayerData', {ReplaceResolver.Tokens.replacePairs: Vt.StringArray(pair1 + pair2)})
     stage.GetRootLayer().subLayerPaths = [a1_v1_relativePath]
     stage.Save()
 
 
-class TestHelloResolver(unittest.TestCase):
+class TestReplaceResolver(unittest.TestCase):
 
-    rootDir = 'testHelloResolver'
+    rootDir = 'testReplaceResolver'
     componentRepo = os.path.join(rootDir, "component")
     assemblyRepo = os.path.join(rootDir, "assembly")
 
@@ -112,22 +112,22 @@ class TestHelloResolver(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Force Ar to use the hello resolver implementation.
-        Ar.SetPreferredResolver('HelloResolver')
+        Ar.SetPreferredResolver('ReplaceResolver')
 
-        # Verify that the underlying resolver is a HelloResolver.
-        assert(isinstance(Ar.GetUnderlyingResolver(), HelloResolver.HelloResolver))
+        # Verify that the underlying resolver is a ReplaceResolver.
+        assert(isinstance(Ar.GetUnderlyingResolver(), ReplaceResolver.ReplaceResolver))
 
         # Cleanup files from previous test
-        dirToRemove = os.path.abspath(TestHelloResolver.rootDir)
+        dirToRemove = os.path.abspath(TestReplaceResolver.rootDir)
         if os.path.isdir(dirToRemove):
             shutil.rmtree(dirToRemove)
 
-        _PrepAssets(TestHelloResolver.rootDir,
-            TestHelloResolver.assemblyRepo,
-            TestHelloResolver.componentRepo)
+        _PrepAssets(TestReplaceResolver.rootDir,
+            TestReplaceResolver.assemblyRepo,
+            TestReplaceResolver.componentRepo)
 
     def test_ResolveWithContext(self):
-        context = HelloResolver.HelloResolverContext([os.path.abspath(TestHelloResolver.rootDir)])
+        context = ReplaceResolver.ReplaceResolverContext([os.path.abspath(TestReplaceResolver.rootDir)])
 
         context.AddReplacePair('component/c1_v1.usda', 'component/c1_v2.usda')
         context.AddReplacePair('assembly/b1_v1.usda', 'assembly/b1_v2.usda')
@@ -135,22 +135,22 @@ class TestHelloResolver(unittest.TestCase):
         with Ar.ResolverContextBinder(context):
             resolver = Ar.GetResolver()
 
-            expectedPath = os.path.join(TestHelloResolver.rootDir, 'component', 'c1_v2.usda')
+            expectedPath = os.path.join(TestReplaceResolver.rootDir, 'component', 'c1_v2.usda')
             self.assertEqual(
                 resolver.Resolve('component/c1_v1.usda'),
                 os.path.abspath(expectedPath))
 
-            expectedPath = os.path.join(TestHelloResolver.rootDir, 'assembly', 'b1_v2.usda')
+            expectedPath = os.path.join(TestReplaceResolver.rootDir, 'assembly', 'b1_v2.usda')
             self.assertEqual(
                 resolver.Resolve('assembly/b1_v1.usda'),
                 os.path.abspath(expectedPath))
 
     def test_ResolveFromStageOneLevel(self):
         ''' Replace reference to c1_v1 by c1_v2 and open stage to check x value '''
-        context = HelloResolver.HelloResolverContext([os.path.abspath(TestHelloResolver.rootDir)])
+        context = ReplaceResolver.ReplaceResolverContext([os.path.abspath(TestReplaceResolver.rootDir)])
         context.AddReplacePair('component/c1_v1.usda', 'component/c1_v2.usda')
 
-        filePath = os.path.join(TestHelloResolver.assemblyRepo, 'b1_v1.usda')
+        filePath = os.path.join(TestReplaceResolver.assemblyRepo, 'b1_v1.usda')
         stage = Usd.Stage.Open(filePath, pathResolverContext=context)
 
         prim = stage.GetPrimAtPath('/b')
@@ -165,11 +165,11 @@ class TestHelloResolver(unittest.TestCase):
 
         Check x and y values
         '''
-        context = HelloResolver.HelloResolverContext([os.path.abspath(TestHelloResolver.rootDir)])
+        context = ReplaceResolver.ReplaceResolverContext([os.path.abspath(TestReplaceResolver.rootDir)])
         context.AddReplacePair('component/c1_v1.usda', 'component/c1_v2.usda')
         context.AddReplacePair('assembly/b1_v1.usda', 'assembly/b1_v2.usda')
 
-        filePath = os.path.join(TestHelloResolver.assemblyRepo, 'a1_v1.usda')
+        filePath = os.path.join(TestReplaceResolver.assemblyRepo, 'a1_v1.usda')
         stage = Usd.Stage.Open(filePath, pathResolverContext=context)
 
         prim = stage.GetPrimAtPath('/a')
@@ -184,8 +184,8 @@ class TestHelloResolver(unittest.TestCase):
 
         Check x and y values
         '''
-        filePath = os.path.join(TestHelloResolver.assemblyRepo, 'a1_v2.usda')
-        os.environ['PXR_AR_DEFAULT_SEARCH_PATH'] = os.path.abspath(TestHelloResolver.rootDir)
+        filePath = os.path.join(TestReplaceResolver.assemblyRepo, 'a1_v2.usda')
+        os.environ['PXR_AR_DEFAULT_SEARCH_PATH'] = os.path.abspath(TestReplaceResolver.rootDir)
         stage = Usd.Stage.Open(filePath)
 
         prim = stage.GetPrimAtPath('/a')

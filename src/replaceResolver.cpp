@@ -1,6 +1,6 @@
 #include "debugCodes.h"
-#include "helloResolver.h"
-#include "helloResolverContext.h"
+#include "replaceResolver.h"
+#include "replaceResolverContext.h"
 #include "tokens.h"
 
 #include <pxr/base/arch/fileSystem.h>
@@ -23,12 +23,12 @@
 
 PXR_NAMESPACE_OPEN_SCOPE
 
-AR_DEFINE_RESOLVER(HelloResolver, ArResolver);
+AR_DEFINE_RESOLVER(ReplaceResolver, ArResolver);
 
 
 namespace {
 
-bool _GetReplacePairsFromUsdFile(const std::string& filePath, HelloResolverContext& context)
+bool _GetReplacePairsFromUsdFile(const std::string& filePath, ReplaceResolverContext& context)
 {
     bool found = false;
     auto layer = SdfLayer::FindOrOpen(TfAbsPath(filePath));
@@ -38,13 +38,13 @@ bool _GetReplacePairsFromUsdFile(const std::string& filePath, HelloResolverConte
         auto replaceData = layerMetaData->Get(rootId, SdfFieldKeys->CustomLayerData);
 
         if (!replaceData.IsEmpty()) {
-            TF_DEBUG(HELLORESOLVER_REPLACE).Msg("Replace metadata found in file: \"%s\"\n",
+            TF_DEBUG(REPLACERESOLVER_REPLACE).Msg("Replace metadata found in file: \"%s\"\n",
                                                 filePath.c_str());
 
             VtDictionary dic = replaceData.Get<VtDictionary>();
-            auto it = dic.find(HelloResolverTokens->replacePairs);
+            auto it = dic.find(ReplaceResolverTokens->replacePairs);
             if(it != dic.end()) {
-                VtValue allPairsValue =  dic[HelloResolverTokens->replacePairs];
+                VtValue allPairsValue =  dic[ReplaceResolverTokens->replacePairs];
                 VtStringArray allPairs = allPairsValue.Get<VtStringArray>();
                 if(allPairs.size() > 0)
                 {
@@ -59,19 +59,19 @@ bool _GetReplacePairsFromUsdFile(const std::string& filePath, HelloResolverConte
     return found;
 }
 
-bool _GetReplacePairsFromJsonFile(const std::string& filePath, HelloResolverContext& context)
+bool _GetReplacePairsFromJsonFile(const std::string& filePath, ReplaceResolverContext& context)
 {
     bool found = false;
     // Check if there is a "replace file" in the directory
     std::string assetDir = TfGetPathName(TfAbsPath(filePath));
     std::string replaceFilePath = TfNormPath(
-        TfStringCatPaths(assetDir, HelloResolverTokens->replaceFileName));
+        TfStringCatPaths(assetDir, ReplaceResolverTokens->replaceFileName));
     
     std::ifstream ifs(replaceFilePath);
 
     // Try to find replace pairs in json file
     if (ifs) {
-        TF_DEBUG(HELLORESOLVER_REPLACE).Msg("Replace file found: \"%s\"\n", 
+        TF_DEBUG(REPLACERESOLVER_REPLACE).Msg("Replace file found: \"%s\"\n", 
                                             replaceFilePath.c_str());
 
         JsParseError error;
@@ -121,49 +121,49 @@ std::vector<std::string> _GetSearchPaths()
     return searchPath;
 }
 
-struct HelloResolver::_Cache
+struct ReplaceResolver::_Cache
 {
     using _PathToResolvedPathMap = 
         tbb::concurrent_hash_map<std::string, std::string>;
     _PathToResolvedPathMap _pathToResolvedPathMap;
 };
 
-HelloResolver::HelloResolver()
+ReplaceResolver::ReplaceResolver()
 {
-    _fallbackContext = HelloResolverContext(_GetSearchPaths());
+    _fallbackContext = ReplaceResolverContext(_GetSearchPaths());
 }
 
-HelloResolver::~HelloResolver()
+ReplaceResolver::~ReplaceResolver()
 {
 }
 
 void
-HelloResolver::SetDefaultSearchPath(
+ReplaceResolver::SetDefaultSearchPath(
     const std::vector<std::string>& searchPath)
 {
     *_SearchPath = searchPath;
 }
 
 void
-HelloResolver::ConfigureResolverForAsset(const std::string& path)
+ReplaceResolver::ConfigureResolverForAsset(const std::string& path)
 {
     _defaultContext = CreateDefaultContextForAsset(path);
 }
 
 bool
-HelloResolver::IsRelativePath(const std::string& path)
+ReplaceResolver::IsRelativePath(const std::string& path)
 {
     return (!path.empty() && TfIsRelativePath(path));
 }
 
 bool
-HelloResolver::IsRepositoryPath(const std::string& path)
+ReplaceResolver::IsRepositoryPath(const std::string& path)
 {
     return false;
 }
 
 std::string
-HelloResolver::AnchorRelativePath(
+ReplaceResolver::AnchorRelativePath(
     const std::string& anchorPath, 
     const std::string& path)
 {
@@ -185,25 +185,25 @@ HelloResolver::AnchorRelativePath(
 }
 
 bool
-HelloResolver::IsSearchPath(const std::string& path)
+ReplaceResolver::IsSearchPath(const std::string& path)
 {
     return IsRelativePath(path) && !_IsFileRelative(path);
 }
 
 std::string
-HelloResolver::GetExtension(const std::string& path)
+ReplaceResolver::GetExtension(const std::string& path)
 {
     return TfGetExtension(path);
 }
 
 std::string
-HelloResolver::ComputeNormalizedPath(const std::string& path)
+ReplaceResolver::ComputeNormalizedPath(const std::string& path)
 {
     return TfNormPath(path);
 }
 
 std::string
-HelloResolver::ComputeRepositoryPath(const std::string& path)
+ReplaceResolver::ComputeRepositoryPath(const std::string& path)
 {
     return std::string();
 }
@@ -228,7 +228,7 @@ _Resolve(
     return TfPathExists(resolvedPath) ? resolvedPath : std::string();
 }
 
-std::string _ReplaceFromContext(const HelloResolverContext& ctx, const std::string& path)
+std::string _ReplaceFromContext(const ReplaceResolverContext& ctx, const std::string& path)
 
 {
     std::string result = path;
@@ -248,7 +248,7 @@ std::string _ReplaceFromContext(const HelloResolverContext& ctx, const std::stri
 }
 
 std::string
-HelloResolver::_ResolveNoCache(const std::string& path)
+ReplaceResolver::_ResolveNoCache(const std::string& path)
 {
     if (path.empty()) {
         return path;
@@ -267,13 +267,13 @@ HelloResolver::_ResolveNoCache(const std::string& path)
         if (IsSearchPath(path)) {
             auto currentContext = _GetCurrentContext();
             if(currentContext) {
-                TF_DEBUG(HELLORESOLVER_CURRENTCONTEXT).Msg(
-                    "HelloResolverContext: \"%s\"\n",
+                TF_DEBUG(REPLACERESOLVER_CURRENTCONTEXT).Msg(
+                    "ReplaceResolverContext: \"%s\"\n",
                     ArResolverContext(*currentContext).GetDebugString().c_str());
             }
-            const HelloResolverContext* contexts[2] =
+            const ReplaceResolverContext* contexts[2] =
                 {currentContext, &_fallbackContext};
-            for (const HelloResolverContext* ctx : contexts) {
+            for (const ReplaceResolverContext* ctx : contexts) {
                 if (ctx) {
                     std::string replacedPath = _ReplaceFromContext(*ctx, path);
                     for (const auto& searchPath : ctx->GetSearchPath()) {
@@ -293,17 +293,17 @@ HelloResolver::_ResolveNoCache(const std::string& path)
 }
 
 std::string
-HelloResolver::Resolve(const std::string& path)
+ReplaceResolver::Resolve(const std::string& path)
 {
     return ResolveWithAssetInfo(path, /* assetInfo = */ nullptr);
 }
 
 std::string
-HelloResolver::ResolveWithAssetInfo(
+ReplaceResolver::ResolveWithAssetInfo(
     const std::string& path, 
     ArAssetInfo* assetInfo)
 {
-    TF_DEBUG(HELLORESOLVER_PATH).Msg("Unresolved path \"%s\"\n",
+    TF_DEBUG(REPLACERESOLVER_PATH).Msg("Unresolved path \"%s\"\n",
                                       path.c_str());
 
     if (path.empty()) {
@@ -324,19 +324,19 @@ HelloResolver::ResolveWithAssetInfo(
         resolvedPath = _ResolveNoCache(path);
     }
 
-    TF_DEBUG(HELLORESOLVER_PATH).Msg("Resolved path \"%s\"\n",
+    TF_DEBUG(REPLACERESOLVER_PATH).Msg("Resolved path \"%s\"\n",
                                       resolvedPath.c_str());
     return resolvedPath;
 }
 
 std::string
-HelloResolver::ComputeLocalPath(const std::string& path)
+ReplaceResolver::ComputeLocalPath(const std::string& path)
 {
     return path.empty() ? path : TfAbsPath(path);
 }
 
 void
-HelloResolver::UpdateAssetInfo(
+ReplaceResolver::UpdateAssetInfo(
     const std::string& identifier,
     const std::string& filePath,
     const std::string& fileVersion,
@@ -350,7 +350,7 @@ HelloResolver::UpdateAssetInfo(
 }
 
 VtValue
-HelloResolver::GetModificationTimestamp(
+ReplaceResolver::GetModificationTimestamp(
     const std::string& path,
     const std::string& resolvedPath)
 {
@@ -365,11 +365,11 @@ HelloResolver::GetModificationTimestamp(
 }
 
 bool 
-HelloResolver::FetchToLocalResolvedPath(
+ReplaceResolver::FetchToLocalResolvedPath(
     const std::string& path,
     const std::string& resolvedPath)
 {
-    // HelloResolver always resolves paths to a file on the
+    // ReplaceResolver always resolves paths to a file on the
     // local filesystem. Because of this, we know the asset specified 
     // by the given path already exists on the filesystem at 
     // resolvedPath, so no further data fetching is needed.
@@ -377,7 +377,7 @@ HelloResolver::FetchToLocalResolvedPath(
 }
 
 std::shared_ptr<ArAsset> 
-HelloResolver::OpenAsset(
+ReplaceResolver::OpenAsset(
     const std::string& resolvedPath)
 {
     FILE* f = ArchOpenFile(resolvedPath.c_str(), "rb");
@@ -389,7 +389,7 @@ HelloResolver::OpenAsset(
 }
 
 bool
-HelloResolver::CanWriteLayerToPath(
+ReplaceResolver::CanWriteLayerToPath(
     const std::string& path,
     std::string* whyNot)
 {
@@ -397,7 +397,7 @@ HelloResolver::CanWriteLayerToPath(
 }
 
 bool
-HelloResolver::CanCreateNewLayerWithIdentifier(
+ReplaceResolver::CanCreateNewLayerWithIdentifier(
     const std::string& identifier, 
     std::string* whyNot)
 {
@@ -405,20 +405,20 @@ HelloResolver::CanCreateNewLayerWithIdentifier(
 }
 
 ArResolverContext 
-HelloResolver::CreateDefaultContext()
+ReplaceResolver::CreateDefaultContext()
 {
     return _defaultContext;
 }
 
 ArResolverContext 
-HelloResolver::CreateDefaultContextForAsset(
+ReplaceResolver::CreateDefaultContextForAsset(
     const std::string& filePath)
 {
     if (filePath.empty()){
-        return ArResolverContext(HelloResolverContext());
+        return ArResolverContext(ReplaceResolverContext());
     }
 
-    auto context = HelloResolverContext(_GetSearchPaths());
+    auto context = ReplaceResolverContext(_GetSearchPaths());
     
     // Find replace pairs in SdfLayer metadata of this filePath
     std::string extension = TfGetExtension(filePath);
@@ -434,44 +434,44 @@ HelloResolver::CreateDefaultContextForAsset(
 }
 
 void 
-HelloResolver::RefreshContext(const ArResolverContext& context)
+ReplaceResolver::RefreshContext(const ArResolverContext& context)
 {
 }
 
 ArResolverContext
-HelloResolver::GetCurrentContext()
+ReplaceResolver::GetCurrentContext()
 {
-    const HelloResolverContext* ctx = _GetCurrentContext();
+    const ReplaceResolverContext* ctx = _GetCurrentContext();
     return ctx ? ArResolverContext(*ctx) : ArResolverContext();
 }
 
 void 
-HelloResolver::BeginCacheScope(
+ReplaceResolver::BeginCacheScope(
     VtValue* cacheScopeData)
 {
     _threadCache.BeginCacheScope(cacheScopeData);
 }
 
 void 
-HelloResolver::EndCacheScope(
+ReplaceResolver::EndCacheScope(
     VtValue* cacheScopeData)
 {
     _threadCache.EndCacheScope(cacheScopeData);
 }
 
-HelloResolver::_CachePtr 
-HelloResolver::_GetCurrentCache()
+ReplaceResolver::_CachePtr 
+ReplaceResolver::_GetCurrentCache()
 {
     return _threadCache.GetCurrentCache();
 }
 
 void 
-HelloResolver::BindContext(
+ReplaceResolver::BindContext(
     const ArResolverContext& context,
     VtValue* bindingData)
 {
-    const HelloResolverContext* ctx = 
-        context.Get<HelloResolverContext>();
+    const ReplaceResolverContext* ctx = 
+        context.Get<ReplaceResolverContext>();
 
     if (!context.IsEmpty() && !ctx) {
         TF_CODING_ERROR(
@@ -484,13 +484,13 @@ HelloResolver::BindContext(
 }
 
 void 
-HelloResolver::UnbindContext(
+ReplaceResolver::UnbindContext(
     const ArResolverContext& context,
     VtValue* bindingData)
 {
     _ContextStack& contextStack = _threadContextStack.local();
     if (contextStack.empty() ||
-        contextStack.back() != context.Get<HelloResolverContext>()) {
+        contextStack.back() != context.Get<ReplaceResolverContext>()) {
         TF_CODING_ERROR(
             "Unbinding resolver context in unexpected order: %s",
             context.GetDebugString().c_str());
@@ -501,8 +501,8 @@ HelloResolver::UnbindContext(
     }
 }
 
-const HelloResolverContext* 
-HelloResolver::_GetCurrentContext()
+const ReplaceResolverContext* 
+ReplaceResolver::_GetCurrentContext()
 {
     _ContextStack& contextStack = _threadContextStack.local();
     return contextStack.empty() ? nullptr : contextStack.back();
