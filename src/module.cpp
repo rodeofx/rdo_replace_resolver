@@ -31,4 +31,5 @@ TF_WRAP_MODULE
 {
     TF_WRAP(HelloResolver);
     TF_WRAP(HelloResolverContext);
+	TF_WRAP(HelloResolverTokens);
 }

@@ -1,6 +1,7 @@
 #include "debugCodes.h"
 #include "helloResolver.h"
 #include "helloResolverContext.h"
+#include "tokens.h"
 
 #include <pxr/base/arch/fileSystem.h>
 #include <pxr/base/arch/systemInfo.h>
@@ -23,9 +24,6 @@
 PXR_NAMESPACE_OPEN_SCOPE
 
 AR_DEFINE_RESOLVER(HelloResolver, ArResolver);
-
-static const std::string replaceKeyName = "HelloResolver_replacePairs";
-static const std::string replaceFileName = "replace.json";
 
 static bool
 _IsFileRelative(const std::string& path) {
@@ -365,9 +363,9 @@ HelloResolver::CreateDefaultContextForAsset(
                                                     filePath.c_str());
 
                 VtDictionary dic = replaceData.Get<VtDictionary>();
-                auto it = dic.find(replaceKeyName);
+                auto it = dic.find(HelloResolverTokens->replacePairs);
                 if(it != dic.end()) {
-                    VtValue allPairsValue =  dic[replaceKeyName];
+                    VtValue allPairsValue =  dic[HelloResolverTokens->replacePairs];
                     VtStringArray allPairs = allPairsValue.Get<VtStringArray>();
 
                     for (size_t i = 0; i < allPairs.size(); i+=2) {
@@ -380,7 +378,7 @@ HelloResolver::CreateDefaultContextForAsset(
 
     // Check if there is a "replace file" in the directory
     std::string replaceFilePath = TfNormPath(
-        TfStringCatPaths(assetDir, replaceFileName));
+        TfStringCatPaths(assetDir, HelloResolverTokens->replaceFileName));
     
     std::ifstream ifs(replaceFilePath);
 

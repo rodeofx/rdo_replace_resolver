@@ -92,7 +92,7 @@ def _PrepAssets(rootDir, assemblyRepo, componentRepo):
     stage = Usd.Stage.CreateNew(_path, context)
     pair1 = ['component/c1_v1.usda', 'component/c1_v2.usda']
     pair2 = ['assembly/b1_v1.usda', 'assembly/b1_v2.usda']
-    stage.SetMetadata('customLayerData', {'HelloResolver_replacePairs': Vt.StringArray(pair1 + pair2)})
+    stage.SetMetadata('customLayerData', {HelloResolver.Tokens.replacePairs: Vt.StringArray(pair1 + pair2)})
     stage.GetRootLayer().subLayerPaths = [a1_v1_relativePath]
     stage.Save()
 

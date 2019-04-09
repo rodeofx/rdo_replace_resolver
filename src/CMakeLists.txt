@@ -8,6 +8,8 @@ add_library(${USDPLUGIN_NAME}
     helloResolver.h
     helloResolverContext.cpp
     helloResolverContext.h
+    tokens.cpp
+    tokens.h
 )
 
 target_link_libraries(${USDPLUGIN_NAME}
@@ -75,6 +77,7 @@ add_library(${USDPLUGIN_PYTHON_NAME}
     moduleDeps.cpp
     wrapHelloResolver.cpp
     wrapHelloResolverContext.cpp
+    wrapTokens.cpp
 )
 
 # On OSX "dylib" does not work to import python module
@@ -93,7 +96,7 @@ target_compile_definitions(${USDPLUGIN_PYTHON_NAME}
 )
 
 target_link_libraries(${USDPLUGIN_PYTHON_NAME}
-  ${USDPLUGIN_NAME}
+    ${USDPLUGIN_NAME}
 )
 
 set(PYTHON_PACKAGE_RELATIVE_PATH lib/python2.7/site-packages/rdo)
@@ -101,15 +104,15 @@ set(INSTALL_PYTHONPACKAGE_DIR  ${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/${PYTHO
 set(INSTALL_WRAPPER_DIR ${INSTALL_PYTHONPACKAGE_DIR}/${MODULE_NAME})
 
 install(
-  TARGETS ${USDPLUGIN_PYTHON_NAME}
-  DESTINATION ${INSTALL_WRAPPER_DIR}
+    TARGETS ${USDPLUGIN_PYTHON_NAME}
+    DESTINATION ${INSTALL_WRAPPER_DIR}
 )
 
 file(WRITE ${INSTALL_PYTHONPACKAGE_DIR}/__init__.py "''' helloResolver package '''")
 
 install(
-  FILES __init__.py
-  DESTINATION ${INSTALL_WRAPPER_DIR}
+    FILES __init__.py
+    DESTINATION ${INSTALL_WRAPPER_DIR}
 )
 
 # Tests
@@ -118,14 +121,14 @@ set(_testPYTHONPATH "PYTHONPATH=${INSTALL_PYTHONPACKAGE_DIR}/..:${USD_ROOT}/lib/
 set(_testPXR_PLUGINPATH_NAME "PXR_PLUGINPATH_NAME=${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/resources")
 
 if(APPLE)
-  # TODO: In theory it should not be necessary to set DYLD_LIBRARY_PATH.
-  # I could not figure out how to make plugInfo work with python bindings on my Mac.
-  set(_testDYLD_LIBRARY_PATH "DYLD_LIBRARY_PATH=${USD_ROOT}/lib/:${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/lib")
+    # TODO: In theory it should not be necessary to set DYLD_LIBRARY_PATH.
+    # I could not figure out how to make plugInfo work with python bindings on my Mac.
+    set(_testDYLD_LIBRARY_PATH "DYLD_LIBRARY_PATH=${USD_ROOT}/lib/:${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/lib")
 endif()
 
 install(
-  FILES testenv/testAsArDefaultResolver.py
-  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test
+    FILES testenv/testAsArDefaultResolver.py
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test
 )
 
 add_test(
@@ -134,8 +137,8 @@ add_test(
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
 
 install(
-  FILES testenv/testHelloResolver.py
-  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test
+    FILES testenv/testHelloResolver.py
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test
 )
 
 add_test(
