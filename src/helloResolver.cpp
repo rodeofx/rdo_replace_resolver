@@ -25,12 +25,86 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 AR_DEFINE_RESOLVER(HelloResolver, ArResolver);
 
-static bool
-_IsFileRelative(const std::string& path) {
+
+namespace {
+
+bool _GetReplacePairsFromUsdFile(const std::string& filePath, HelloResolverContext& context)
+{
+    bool found = false;
+    auto layer = SdfLayer::FindOrOpen(TfAbsPath(filePath));
+    if (layer) {
+        auto layerMetaData = layer->GetMetadata();
+        auto rootId = SdfAbstractDataSpecId(&SdfPath::AbsoluteRootPath());
+        auto replaceData = layerMetaData->Get(rootId, SdfFieldKeys->CustomLayerData);
+
+        if (!replaceData.IsEmpty()) {
+            TF_DEBUG(HELLORESOLVER_REPLACE).Msg("Replace metadata found in file: \"%s\"\n",
+                                                filePath.c_str());
+
+            VtDictionary dic = replaceData.Get<VtDictionary>();
+            auto it = dic.find(HelloResolverTokens->replacePairs);
+            if(it != dic.end()) {
+                VtValue allPairsValue =  dic[HelloResolverTokens->replacePairs];
+                VtStringArray allPairs = allPairsValue.Get<VtStringArray>();
+                if(allPairs.size() > 0)
+                {
+                    found = true;
+                    for (size_t i = 0; i < allPairs.size(); i+=2) {
+                        context.AddReplacePair(allPairs[i], allPairs[i+1]);
+                    }
+                }
+            }
+        }
+    }
+    return found;
+}
+
+bool _GetReplacePairsFromJsonFile(const std::string& filePath, HelloResolverContext& context)
+{
+    bool found = false;
+    // Check if there is a "replace file" in the directory
+    std::string assetDir = TfGetPathName(TfAbsPath(filePath));
+    std::string replaceFilePath = TfNormPath(
+        TfStringCatPaths(assetDir, HelloResolverTokens->replaceFileName));
+    
+    std::ifstream ifs(replaceFilePath);
+
+    // Try to find replace pairs in json file
+    if (ifs) {
+        TF_DEBUG(HELLORESOLVER_REPLACE).Msg("Replace file found: \"%s\"\n", 
+                                            replaceFilePath.c_str());
+
+        JsParseError error;
+        const JsValue value = JsParseStream(ifs, &error);
+        ifs.close();
+
+        if (!value.IsNull() && value.IsArray()) {
+            if (value.GetJsArray().size() > 0) {
+                found = true;
+                for(const auto& pair : value.GetJsArray()) {
+                    if(pair.IsArray()) {
+                        context.AddReplacePair(
+                            pair.GetJsArray()[0].GetString(), pair.GetJsArray()[1].GetString());
+                    }
+                }
+            }
+        }
+        else {
+            fprintf(stderr, "Error: parse error at %s:%d:%d: %s\n",
+                replaceFilePath.c_str(), error.line, error.column, error.reason.c_str());
+        }
+    }
+
+    return found;  
+}
+
+bool _IsFileRelative(const std::string& path) {
     return path.find("./") == 0 || path.find("../") == 0;
 }
 
-static TfStaticData<std::vector<std::string>> _SearchPath;
+TfStaticData<std::vector<std::string>> _SearchPath;
+
+} // end anonymous namespace
 
 std::vector<std::string> _GetSearchPaths() 
 {
@@ -346,66 +420,15 @@ HelloResolver::CreateDefaultContextForAsset(
 
     auto context = HelloResolverContext(_GetSearchPaths());
     
-    std::string assetDir = TfGetPathName(TfAbsPath(filePath));
-    
-    // find replace pairs in SdfLayer metadata
+    // Find replace pairs in SdfLayer metadata of this filePath
     std::string extension = TfGetExtension(filePath);
-
     if(extension == "usd" || extension == "usda" || extension == "usdc") {
-        auto layer = SdfLayer::FindOrOpen(TfAbsPath(filePath));
-        if (layer) {
-            auto layerMetaData = layer->GetMetadata();
-            auto rootId = SdfAbstractDataSpecId(&SdfPath::AbsoluteRootPath());
-            auto replaceData = layerMetaData->Get(rootId, SdfFieldKeys->CustomLayerData);
-
-            if (!replaceData.IsEmpty()) {
-                TF_DEBUG(HELLORESOLVER_REPLACE).Msg("Replace metadata found in file: \"%s\"\n",
-                                                    filePath.c_str());
-
-                VtDictionary dic = replaceData.Get<VtDictionary>();
-                auto it = dic.find(HelloResolverTokens->replacePairs);
-                if(it != dic.end()) {
-                    VtValue allPairsValue =  dic[HelloResolverTokens->replacePairs];
-                    VtStringArray allPairs = allPairsValue.Get<VtStringArray>();
-
-                    for (size_t i = 0; i < allPairs.size(); i+=2) {
-                        context.AddReplacePair(allPairs[i], allPairs[i+1]);
-                    }
-                }
-            }
-        }        
+        _GetReplacePairsFromUsdFile(filePath, context);
     }
 
-    // Check if there is a "replace file" in the directory
-    std::string replaceFilePath = TfNormPath(
-        TfStringCatPaths(assetDir, HelloResolverTokens->replaceFileName));
-    
-    std::ifstream ifs(replaceFilePath);
-
-    // Try to find replace pairs in json file
-    if (ifs) {
-        TF_DEBUG(HELLORESOLVER_REPLACE).Msg("Replace file found: \"%s\"\n", 
-                                            replaceFilePath.c_str());
-
-        JsParseError error;
-        const JsValue value = JsParseStream(ifs, &error);
-        ifs.close();
-
-        if (!value.IsNull() && value.IsArray()) {
-            for(const auto& pair : value.GetJsArray())
-            {
-                if(pair.IsArray()) {
-                    context.AddReplacePair(
-                        pair.GetJsArray()[0].GetString(), pair.GetJsArray()[1].GetString());
-                }
-            }
-        }
-        else
-        {
-            fprintf(stderr, "Error: parse error at %s:%d:%d: %s\n",
-                replaceFilePath.c_str(), error.line, error.column, error.reason.c_str());
-        }
-    }
+    // If the is a json file at the same location we allow adding 
+    // or overriding replace pairs.
+    _GetReplacePairsFromJsonFile(filePath, context);
 
     return ArResolverContext(context);
 }
