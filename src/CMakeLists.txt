@@ -22,11 +22,6 @@ target_link_libraries(${USDPLUGIN_NAME}
     sdf
 )
 
-target_include_directories(${USDPLUGIN_NAME} INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:include>
-)
-
 set_target_properties(${USDPLUGIN_NAME} PROPERTIES PREFIX "")
 
 target_compile_features(${USDPLUGIN_NAME}
@@ -50,18 +45,11 @@ install(
     LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/lib
 )
 
-# Install headers
-install(
-    FILES replaceResolverContext.h
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/include/${USDPLUGIN_NAME}
-)
-
 # Install plugInfo
 install(
     FILES ${CMAKE_BINARY_DIR}/plugInfo.json
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/resources
 )
-
 
 # Python bindings
 if (PXR_ENABLE_PYTHON_SUPPORT)
@@ -83,6 +71,11 @@ add_library(${USDPLUGIN_PYTHON_NAME}
     wrapReplaceResolver.cpp
     wrapReplaceResolverContext.cpp
     wrapTokens.cpp
+)
+
+target_include_directories(${USDPLUGIN_PYTHON_NAME}
+    PRIVATE  
+        ${PXR_INCLUDE_DIRS}
 )
 
 # On OSX "dylib" does not work to import python module
@@ -122,13 +115,13 @@ install(
 
 # Tests
 enable_testing()
-set(_testPYTHONPATH "PYTHONPATH=${INSTALL_PYTHONPACKAGE_DIR}/..:${USD_ROOT}/lib/python:$ENV{PYTHONPATH}")
+set(_testPYTHONPATH "PYTHONPATH=${INSTALL_PYTHONPACKAGE_DIR}/..:${USD_LOCATION}/lib/python:$ENV{PYTHONPATH}")
 set(_testPXR_PLUGINPATH_NAME "PXR_PLUGINPATH_NAME=${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/resources")
 
 if(APPLE)
     # TODO: In theory it should not be necessary to set DYLD_LIBRARY_PATH.
     # I could not figure out how to make plugInfo work with python bindings on my Mac.
-    set(_testDYLD_LIBRARY_PATH "DYLD_LIBRARY_PATH=${USD_ROOT}/lib/:${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/lib")
+    set(_testDYLD_LIBRARY_PATH "DYLD_LIBRARY_PATH=${USD_LOCATION}/lib/:${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/lib")
 endif()
 
 install(
