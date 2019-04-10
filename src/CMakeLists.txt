@@ -12,6 +12,11 @@ add_library(${USDPLUGIN_NAME}
     tokens.h
 )
 
+target_include_directories(${USDPLUGIN_NAME}
+    PRIVATE  
+        ${PXR_INCLUDE_DIRS}
+)
+
 target_link_libraries(${USDPLUGIN_NAME}
     ar
     sdf
