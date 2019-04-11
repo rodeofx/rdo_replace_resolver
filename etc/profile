@@ -1,0 +1,14 @@
+dir_etc=`dirname ${BASH_SOURCE[0]}`
+dir_root=`dirname $dir_etc`
+
+for i in $dir_etc/profile.d/*.sh ; do
+    if [ ${-#*i} != $- ]; then
+        . $i $dir_root
+    else
+        . $i $dir_root >/dev/null
+    fi
+done
+
+unset i
+unset dir_root
+unset dir_etc

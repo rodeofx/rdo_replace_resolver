@@ -1,5 +1,3 @@
-set(USDPLUGIN_NAME replaceResolver)
-
 add_library(${USDPLUGIN_NAME}
     SHARED
     debugCodes.cpp
