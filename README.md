@@ -3,7 +3,7 @@
 An asset path resolver plugin for USD.
 
 It is following the ArDefaultResolver logic, such as relative paths resolution using an "anchor"
-paths. See [USD API documentation for more info](http://graphics.pixar.com/usd/docs/api/class_ar_default_resolver.html#details)
+paths (see [USD API documentation for more info](http://graphics.pixar.com/usd/docs/api/class_ar_default_resolver.html#details))
 and is adding a substring replacement system.
 
 
