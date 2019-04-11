@@ -29,16 +29,16 @@ Given a stage with some prims referencing some assets as bellow:
 ```
 #usda 1.0
 
-def "foo_01"
+def "foo_01" (
+	prepend references = @assets/foo/v1/foo.usda@
+)
 {
-	references = @assets/foo/v1/foo.usda@
 }
 
-def "bar_01"
+def "bar_01" (
+	prepend references = @assets/bar/v4/bar.usda@)
 {
-	references = @assets/bar/v4/bar.usda@
 }
-
 ```
 We want to load the stage with a version *v2* of foo and a version *v5* of bar without authoring USD arcs explicitly.
 
@@ -49,11 +49,14 @@ We want to load the stage with a version *v2* of foo and a version *v5* of bar w
 
 Can be useful to quickly test a replace pair for a specific asset path.
 
-- Advantage. Allow to open a USD file without any "replace versions" information in its meta data or sidecar json file).
-- Inconvenient: Code for the stage loaders in DCC plugins or usdview must implement such logic.
+Adantage: 
+Allow to open a USD file without any "replace versions" information in its meta data or sidecar json file).
 
-- Python script executed from `/myshow`
+Inconvenient:
+Code for the stage loaders in the DCC plugins or usdview must implement such logic.
+
 ```
+# Python script to be executed from `/myshow`
 from pxr import Ar
 from pxr import Usd
 from rdo import ReplaceResolver
@@ -83,8 +86,8 @@ assert (stage.GetPrimAtPath('/bar_01').GetAttribute('version').Get() == "v5")
 This is the recommanded way in production.
 
 
-- Python script executed from `/myshow`
 ```
+# Python script executed from `/myshow`
 from pxr import Ar
 from pxr import Usd
 from pxr import Vt
