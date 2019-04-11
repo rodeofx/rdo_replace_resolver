@@ -1,3 +1,4 @@
+// Copyright 2019 Rodeo FX.  All rights reserved.
 #include "debugCodes.h"
 #include "replaceResolver.h"
 #include "replaceResolverContext.h"

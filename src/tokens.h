@@ -1,3 +1,4 @@
+// Copyright 2019 Rodeo FX.  All rights reserved.
 #ifndef REPLACE_RESOLVER_TOKENS_H
 #define REPLACE_RESOLVER_TOKENS_H
 

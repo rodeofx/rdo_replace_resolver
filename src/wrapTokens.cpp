@@ -1,3 +1,4 @@
+// Copyright 2019 Rodeo FX.  All rights reserved.
 #include <boost/python/class.hpp>
 #include "tokens.h"
 

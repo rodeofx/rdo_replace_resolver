@@ -1,3 +1,4 @@
+# Copyright 2019 Rodeo FX.  All rights reserved.
 from pxr import Ar
 from pxr import Kind
 from pxr import Sdf

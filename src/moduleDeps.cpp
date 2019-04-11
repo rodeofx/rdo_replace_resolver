@@ -1,3 +1,4 @@
+// Copyright 2019 Rodeo FX.  All rights reserved.
 #include <pxr/pxr.h>
 #include <pxr/base/tf/registryManager.h>
 #include <pxr/base/tf/scriptModuleLoader.h>

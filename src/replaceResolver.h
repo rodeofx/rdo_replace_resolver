@@ -1,3 +1,4 @@
+// Copyright 2019 Rodeo FX.  All rights reserved.
 #ifndef USD_REPLACE_RESOLVER_H
 #define USD_REPLACE_RESOLVER_H
 

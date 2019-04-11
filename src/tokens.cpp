@@ -1,3 +1,4 @@
+// Copyright 2019 Rodeo FX.  All rights reserved.
 #include "tokens.h"
 
 PXR_NAMESPACE_OPEN_SCOPE

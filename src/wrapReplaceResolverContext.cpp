@@ -1,4 +1,4 @@
-
+// Copyright 2019 Rodeo FX.  All rights reserved.
 #include "replaceResolverContext.h"
 
 #include <boost/python/class.hpp>
