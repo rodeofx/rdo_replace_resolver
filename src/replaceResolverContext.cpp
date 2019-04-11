@@ -90,6 +90,13 @@ hash_value(const ReplaceResolverContext& context)
     for (const std::string& p : context.GetSearchPath()) {
         boost::hash_combine(hash, TfHash()(p));
     }
+
+    auto replaceMap = context.GetReplaceMap();
+    for (auto it = replaceMap.begin(); it != replaceMap.end(); ++it) 
+    {
+        boost::hash_combine(hash, TfHash()(it->first));
+        boost::hash_combine(hash, TfHash()(it->second));
+    }
     return hash;
 }
 
