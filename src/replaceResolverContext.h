@@ -26,7 +26,7 @@ public:
 
     AR_API void AddReplacePair(const std::string& oldStr, const std::string& newStr);
 
-    const std::map<std::string, std::string>& GetStringsAddReplacePair() const { return _oldAndNewStrings; }
+    const std::map<std::string, std::string>& GetReplaceMap() const { return _oldAndNewStrings; }
 
     AR_API bool operator<(const ReplaceResolverContext& rhs) const;
     AR_API bool operator==(const ReplaceResolverContext& rhs) const;

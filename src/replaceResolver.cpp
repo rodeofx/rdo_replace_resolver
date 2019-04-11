@@ -233,7 +233,7 @@ std::string _ReplaceFromContext(const ReplaceResolverContext& ctx, const std::st
 {
     std::string result = path;
 
-    auto oldAndNewStrings = ctx.GetStringsAddReplacePair();
+    auto oldAndNewStrings = ctx.GetReplaceMap();
     for (auto it = oldAndNewStrings.begin(); it != oldAndNewStrings.end(); ++it)
     {
 
