@@ -177,8 +177,9 @@ class TestReplaceResolver(unittest.TestCase):
         
         self.assertEqual(yAttr.Get(), 'b1_v2')
 
-    def test_ResolveFromMetaData(self):
+    def test_ReplaceFromUsdFile(self):
         ''' 
+        Open a layer with some replace pairs in customLayerData
         In a1_v2, replace reference to b1_v1 by b1_v2
         In b1_v2, replace reference to c1_v1 by c1_v2
 
@@ -199,6 +200,40 @@ class TestReplaceResolver(unittest.TestCase):
         self.assertTrue(yAttr)  
         self.assertEqual(yAttr.Get(), 'b1_v2')
 
+    def test_ReplaceFromJsonFile(self):
+        ''' 
+        Open a layer with a side car json file storing the replace pairs
+        In a1_v2, replace reference to b1_v1 by b1_v2
+        In b1_v2, replace reference to c1_v1 by c1_v2
+
+        Check x and y values
+        '''
+        jsonFilePath = os.path.join(TestReplaceResolver.assemblyRepo,
+            ReplaceResolver.Tokens.replaceFileName)
+
+        self.assertEqual(jsonFilePath, 'testReplaceResolver/assembly/replace.json')
+
+        pair1 = ['component/c1_v1.usda', 'component/c1_v2.usda']
+        pair2 = ['assembly/b1_v1.usda', 'assembly/b1_v2.usda']
+
+        import json
+        with open(jsonFilePath, 'w') as outfile:  
+            json.dump([pair1, pair2], outfile)
+
+        filePath = os.path.join(TestReplaceResolver.assemblyRepo, 'a1_v1.usda')
+        os.environ['PXR_AR_DEFAULT_SEARCH_PATH'] = os.path.abspath(TestReplaceResolver.rootDir)
+        stage = Usd.Stage.Open(filePath)
+
+        prim = stage.GetPrimAtPath('/a')
+        self.assertTrue(prim)
+
+        xAttr = prim.GetAttribute('x')
+        self.assertTrue(xAttr)  
+        self.assertEqual(xAttr.Get(), 2.0)
+
+        yAttr = prim.GetAttribute('y')
+        self.assertTrue(yAttr)  
+        self.assertEqual(yAttr.Get(), 'b1_v2')
 
 if __name__ == '__main__':
     unittest.main()

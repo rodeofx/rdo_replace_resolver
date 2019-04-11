@@ -275,7 +275,9 @@ ReplaceResolver::_ResolveNoCache(const std::string& path)
                 {currentContext, &_fallbackContext};
             for (const ReplaceResolverContext* ctx : contexts) {
                 if (ctx) {
+                    // Replace sub strings from context old/new pairs.
                     std::string replacedPath = _ReplaceFromContext(*ctx, path);
+
                     for (const auto& searchPath : ctx->GetSearchPath()) {
                         resolvedPath = _Resolve(searchPath, replacedPath);
                         if (!resolvedPath.empty()) {
