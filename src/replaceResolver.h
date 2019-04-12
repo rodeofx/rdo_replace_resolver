@@ -21,30 +21,17 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 /// \class ReplaceResolver
 ///
-///
-/// In order to resolve assets specified by relative paths, this resolver
-/// implements the simple "search path" scheme from the Usd defaultResolver
-/// and a "replace substring" scheme.
-///
-/// The "replace substring" scheme will uses old/new string pairs from
+/// Add a "replace substring" scheme.
+/// 
+/// This scheme will uses old/new string pairs from
 /// the ReplaceResolverContext to udate any asset path occordingly.
 ///     - old asset path: /foo/foo_v1.usda with ["foo_v1", "foo_v2"] pair in context
 ///     - resolved asset path: /foo/foo_v2.usda
 ///
-/// For the record, the "search path" scheme works as following:
-//  The resolver will anchor the
-/// relative path to a series of directories and return the first absolute
-/// path where the asset exists.
-///
-/// The first directory will always be the current working directory. The
-/// resolver will then examine the directories specified via the following
-/// mechanisms (in order):
-///
-///    - The currently-bound ReplaceResolverContext for the calling thread
-///    - ReplaceResolver::SetDefaultSearchPath
-///    - The environment variable PXR_AR_DEFAULT_SEARCH_PATH. This is
-///      expected to be a list of directories delimited by the platform's 
-///      standard path separator.
+/// In order to resolve assets specified by relative paths, this resolver
+/// re-implements the "search path" scheme from the
+/// <A HREF="http://graphics.pixar.com/usd/docs/api/class_ar_default_resolver.html#details">Usd defaultResolver</A>
+/// We don't inherite from the defaultResolver since we can't access its cache or fallback context that are private.
 /// 
 class ReplaceResolver
     : public ArResolver
