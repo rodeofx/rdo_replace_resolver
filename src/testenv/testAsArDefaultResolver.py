@@ -23,7 +23,9 @@
 # language governing permissions and limitations under the Apache License.
 #
 
-""" Test to check that our Resolver behave like the ArDefaultResolver """
+""" Test to check that our Resolver behave like the ArDefaultResolver
+    This file should be updated to always match "testArDefaultResolver.py"
+"""
 
 import os
 from pxr import Ar
