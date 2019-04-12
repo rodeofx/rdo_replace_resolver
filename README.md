@@ -12,8 +12,8 @@ and is adding a substring replacement system.
 Custom asset resolvers are used to translate any _asset paths_ found in the layer stack of a USD stage.
 For example, such _asset path_ can be a URI used to retrieve a specific version of the asset from a data base.
 
-To avoid adding a dependency with a database API, a solution is access a DB (to retrieve information such as asset versions)
-before opening a USD file and store the information in the USD layer metadata or in a sidecare file.
+To avoid adding a dependency with a database API, a solution is to access such database before opening a USD file,
+and then store the information in the USD layer metadata or in a sidecare file.
 
 The advantage are multiple:
 - can resolve the shot from a cloud rendering system not connected to studio database.
