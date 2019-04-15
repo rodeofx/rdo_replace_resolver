@@ -43,13 +43,25 @@ void ReplaceResolverContext::AddReplacePair(const std::string& oldStr, const std
 bool
 ReplaceResolverContext::operator<(const ReplaceResolverContext& rhs) const
 {
-    return _searchPath < rhs._searchPath;
+    bool result = _searchPath < rhs._searchPath;
+
+    if (result == true) {
+        result = _oldAndNewStrings.size() < rhs._oldAndNewStrings.size();
+    }
+
+    return result;
 }
 
 bool 
 ReplaceResolverContext::operator==(const ReplaceResolverContext& rhs) const
 {
-    return _searchPath == rhs._searchPath;
+    bool result = _searchPath == rhs._searchPath;
+
+    if(result == true) {
+        result = _oldAndNewStrings.size() == rhs._oldAndNewStrings.size();
+    }
+
+    return result;
 }
 
 bool 
