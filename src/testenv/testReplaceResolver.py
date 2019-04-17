@@ -12,16 +12,20 @@ import unittest
 import shutil
 
 
+def _GetRelativePath(dirName, asset, version):
+    return os.path.join(dirName, asset, version, "%s.usda" % asset)
+
+
 def _PrepAssets(rootDir, assemblyRepo, componentRepo):
     """ Construct following structure
 
-    a1_v1.usda     b1_v1.usda      c1_v1.usda
+    a/v1/a.usda     b/v1/b.usda      c/v1/c.usda
     /a  ---(R)---> /b   ---(R)---> /c
                                      x = 1                        
-                   b1_v2.usda      c1_v2.usda
+                   b/v2/b.usda      c/v2/c.usda
                      y = "b1_v2"     x = 2
 
-    a1_v2.usda
+    a/v2/a.usda
     / customLayerData = replace string list
     /   ---(S)---> a1_v1.usda
 
@@ -31,73 +35,115 @@ def _PrepAssets(rootDir, assemblyRepo, componentRepo):
 
     context = ReplaceResolver.ReplaceResolverContext([os.path.abspath(rootDir)])
 
-    # Create c1_v1.usda
-    c1_v1_relativePath = "c1_v1.usda"
-    _path = os.path.join(componentRepo, c1_v1_relativePath)
+    # Create c version 1
+    assetName = "c"
+    assetVersion = "v1"
+    c_v1_relativePath = _GetRelativePath("component", assetName, assetVersion)
+    _path = os.path.join(rootDir, c_v1_relativePath)
     stage = Usd.Stage.CreateNew(_path, context)
     prim = stage.DefinePrim("/c")
-    Usd.ModelAPI(prim).SetKind(Kind.Tokens.component)
     stage.SetDefaultPrim(prim)
-    xAttr = prim.CreateAttribute("x", Sdf.ValueTypeNames.Double, True)
-    xAttr.Set(1.0)
+
+    modelAPI = Usd.ModelAPI(prim)
+    modelAPI.SetKind(Kind.Tokens.component)
+    modelAPI.SetAssetName(assetName)
+    modelAPI.SetAssetVersion(assetVersion)
+    modelAPI.SetAssetIdentifier(c_v1_relativePath)
+
+    cAttr = prim.CreateAttribute("c", Sdf.ValueTypeNames.String, True)
+    cAttr.Set("c_v1")
     stage.Save()
 
-    # Create c1_v2.usda
-    c1_v2_relativePath = "c1_v2.usda"
-    _path = os.path.join(componentRepo, c1_v2_relativePath)
+    # Create c version 2
+    assetVersion = "v2"
+    c_v2_relativePath = _GetRelativePath("component", assetName, assetVersion)
+    _path = os.path.join(rootDir, c_v2_relativePath)
     stage = Usd.Stage.CreateNew(_path, context)
-    stage.GetRootLayer().subLayerPaths = [c1_v1_relativePath]
+    stage.GetRootLayer().subLayerPaths = [ "../v1/%s.usda" % assetName ]
+
     prim = stage.GetPrimAtPath("/c")
     stage.SetDefaultPrim(prim)
-    xAttr = prim.GetAttribute("x")
-    xAttr.Set(2.0)
+
+    modelAPI = Usd.ModelAPI(prim)
+    modelAPI.SetAssetName(assetName)
+    modelAPI.SetAssetVersion(assetVersion)
+    modelAPI.SetAssetIdentifier(c_v2_relativePath)
+
+    cAttr = prim.GetAttribute("c")
+    cAttr.Set("c_v2")
     stage.Save()
 
-    # Create b1_v1.usda
-    b1_v1_relativePath = "b1_v1.usda"
-    _path = os.path.join(assemblyRepo, b1_v1_relativePath)
+    # Create b version 1
+    assetName = "b"
+    assetVersion = "v1"
+
+    b_v1_relativePath = _GetRelativePath("assembly", assetName, assetVersion)
+    _path = os.path.join(rootDir, b_v1_relativePath)
     stage = Usd.Stage.CreateNew(_path, context)
     prim = stage.DefinePrim("/b")
-    Usd.ModelAPI(prim).SetKind(Kind.Tokens.assembly)
     stage.SetDefaultPrim(prim)
 
-    prim.GetReferences().AddReference("component/" + c1_v1_relativePath)
+    modelAPI = Usd.ModelAPI(prim)
+    modelAPI.SetKind(Kind.Tokens.assembly)
+    modelAPI.SetAssetName(assetName)
+    modelAPI.SetAssetVersion(assetVersion)
+    modelAPI.SetAssetIdentifier(b_v1_relativePath)
+
+    prim.GetReferences().AddReference(c_v1_relativePath)
     stage.Save()
 
-    # Create b1_v2.usda
-    b1_v2_relativePath = "b1_v2.usda"
-    _path = os.path.join(assemblyRepo, b1_v2_relativePath)
+    # Create b version 2
+    assetVersion = "v2"
+
+    b_v2_relativePath = _GetRelativePath("assembly", assetName, assetVersion)
+    _path = os.path.join(rootDir, b_v2_relativePath)
     stage = Usd.Stage.CreateNew(_path, context)
-    stage.GetRootLayer().subLayerPaths = [b1_v1_relativePath]
+    stage.GetRootLayer().subLayerPaths = [ "../v1/%s.usda" % assetName ]
     prim = stage.GetPrimAtPath("/b")
+    modelAPI = Usd.ModelAPI(prim)
+    modelAPI.SetKind(Kind.Tokens.assembly)
+    modelAPI.SetAssetName(assetName)
+    modelAPI.SetAssetVersion(assetVersion)
+    modelAPI.SetAssetIdentifier(b_v2_relativePath)
+
     stage.SetDefaultPrim(prim)
-    yAttr = prim.CreateAttribute("y", Sdf.ValueTypeNames.String, True)
-    yAttr.Set("b1_v2")
+    bAttr = prim.CreateAttribute("b", Sdf.ValueTypeNames.String, True)
+    bAttr.Set("b_v2")
 
     stage.Save()
 
-    # Create a1_v1.usda
-    a1_v1_relativePath = "a1_v1.usda"
-    _path = os.path.join(assemblyRepo, a1_v1_relativePath)
+    # Create a version
+    assetName = "a"
+    assetVersion = "v1"
+
+    a_v1_relativePath = _GetRelativePath("assembly", assetName, assetVersion)
+    _path = os.path.join(rootDir, a_v1_relativePath)
     stage = Usd.Stage.CreateNew(_path, context)
     prim = stage.DefinePrim("/a")
-    Usd.ModelAPI(prim).SetKind(Kind.Tokens.assembly)
     stage.SetDefaultPrim(prim)
 
-    prim.GetReferences().AddReference("assembly/" + b1_v1_relativePath)
+    modelAPI = Usd.ModelAPI(prim)
+    modelAPI.SetKind(Kind.Tokens.assembly)
+    modelAPI.SetAssetName(assetName)
+    modelAPI.SetAssetVersion(assetVersion)
+    modelAPI.SetAssetIdentifier(a_v1_relativePath)
+
+    prim.GetReferences().AddReference(b_v1_relativePath)
     stage.Save()
 
-    # Create a1_v2.usda
-    a1_v2_relativePath = "a1_v2.usda"
-    _path = os.path.join(assemblyRepo, a1_v2_relativePath)
+    # Create a version 2 with customLayerData to store replace strings
+    assetVersion = "v2"
+
+    a_v2_relativePath = _GetRelativePath("assembly", assetName, assetVersion)
+    _path = os.path.join(rootDir, a_v2_relativePath)
     stage = Usd.Stage.CreateNew(_path, context)
-    pair1 = ["component/c1_v1.usda", "component/c1_v2.usda"]
-    pair2 = ["assembly/b1_v1.usda", "assembly/b1_v2.usda"]
+    pair1 = ["component/c/v1/c.usda", "component/c/v2/c.usda"]
+    pair2 = ["assembly/b/v1/b.usda", "assembly/b/v2/b.usda"]
     stage.SetMetadata(
         "customLayerData",
         {ReplaceResolver.Tokens.replacePairs: Vt.StringArray(pair1 + pair2)},
     )
-    stage.GetRootLayer().subLayerPaths = [a1_v1_relativePath]
+    stage.GetRootLayer().subLayerPaths = [ "../v1/%s.usda" % assetName ]
     stage.Save()
 
 
@@ -137,71 +183,70 @@ class TestReplaceResolver(unittest.TestCase):
             [os.path.abspath(TestReplaceResolver.rootDir)]
         )
 
-        context.AddReplacePair("component/c1_v1.usda", "component/c1_v2.usda")
-        context.AddReplacePair("assembly/b1_v1.usda", "assembly/b1_v2.usda")
+        context.AddReplacePair("component/c/v1/c.usda", "component/c/v2/c.usda")
+        context.AddReplacePair("assembly/b/v1/b.usda", "assembly/b/v2/b.usda")
 
         with Ar.ResolverContextBinder(context):
             resolver = Ar.GetResolver()
 
-            expectedPath = os.path.join(
-                TestReplaceResolver.rootDir, "component", "c1_v2.usda"
-            )
-            self.assertEqual(
-                resolver.Resolve("component/c1_v1.usda"), os.path.abspath(expectedPath)
+            self.assertPathsEqual(
+                resolver.Resolve("component/c/v1/c.usda"),
+                os.path.abspath(os.path.join(
+                    TestReplaceResolver.rootDir, "component/c/v2/c.usda"))
             )
 
-            expectedPath = os.path.join(
-                TestReplaceResolver.rootDir, "assembly", "b1_v2.usda"
-            )
-            self.assertEqual(
-                resolver.Resolve("assembly/b1_v1.usda"), os.path.abspath(expectedPath)
+            self.assertPathsEqual(
+                resolver.Resolve("assembly/b/v1/b.usda"), 
+                os.path.abspath(os.path.join(
+                    TestReplaceResolver.rootDir, "assembly/b/v2/b.usda"))
             )
 
     def test_ResolveFromStageOneLevel(self):
-        """ Replace reference to c1_v1 by c1_v2 and open stage to check x value """
+        """ Replace reference to c/v1 by c/v2 and open stage to check x value """
         context = ReplaceResolver.ReplaceResolverContext(
             [os.path.abspath(TestReplaceResolver.rootDir)]
         )
-        context.AddReplacePair("component/c1_v1.usda", "component/c1_v2.usda")
 
-        filePath = os.path.join(TestReplaceResolver.assemblyRepo, "b1_v1.usda")
+        context.AddReplacePair("component/c/v1/c.usda", "component/c/v2/c.usda")
+
+        filePath = os.path.join(TestReplaceResolver.assemblyRepo, "b", "v1", "b.usda")
         stage = Usd.Stage.Open(filePath, pathResolverContext=context)
 
         prim = stage.GetPrimAtPath("/b")
-        xAttr = prim.GetAttribute("x")
+        cAttr = prim.GetAttribute("c")
 
-        self.assertEqual(xAttr.Get(), 2.0)
+        self.assertEqual(cAttr.Get(), "c_v2")
 
     def test_ResolveFromStageTwoLevels(self):
         """ 
-        In a1_v1, replace reference to b1_v1 by b1_v2
-        In b1_v2, replace reference to c1_v1 by c1_v2
+        In a/v1, replace reference to b/v1 by b/v2
+        In b/v2, replace reference to c/v1 by c/v2
 
         Check x and y values
         """
         context = ReplaceResolver.ReplaceResolverContext(
             [os.path.abspath(TestReplaceResolver.rootDir)]
         )
-        context.AddReplacePair("component/c1_v1.usda", "component/c1_v2.usda")
-        context.AddReplacePair("assembly/b1_v1.usda", "assembly/b1_v2.usda")
+        context.AddReplacePair("component/c/v1/c.usda", "component/c/v2/c.usda")
+        context.AddReplacePair("assembly/b/v1/b.usda", "assembly/b/v2/b.usda")
 
-        filePath = os.path.join(TestReplaceResolver.assemblyRepo, "a1_v1.usda")
+        filePath = os.path.join(TestReplaceResolver.assemblyRepo, "a", "v1", "a.usda")
         stage = Usd.Stage.Open(filePath, pathResolverContext=context)
 
         prim = stage.GetPrimAtPath("/a")
-        yAttr = prim.GetAttribute("y")
+        bAttr = prim.GetAttribute("b")
 
-        self.assertEqual(yAttr.Get(), "b1_v2")
+        self.assertEqual(bAttr.Get(), "b_v2")
 
     def test_ReplaceFromUsdFile(self):
         """ 
         Open a layer with some replace pairs in customLayerData
-        In a1_v2, replace reference to b1_v1 by b1_v2
-        In b1_v2, replace reference to c1_v1 by c1_v2
+        In a/v2, replace reference to b/v1 by b/v2
+        In b/v2, replace reference to c/v1 by c/v2
 
         Check x and y values
         """
-        filePath = os.path.join(TestReplaceResolver.assemblyRepo, "a1_v2.usda")
+        filePath = os.path.join(TestReplaceResolver.assemblyRepo, "a", "v2", "a.usda")
         os.environ["PXR_AR_DEFAULT_SEARCH_PATH"] = os.path.abspath(
             TestReplaceResolver.rootDir
         )
@@ -210,37 +255,35 @@ class TestReplaceResolver(unittest.TestCase):
         prim = stage.GetPrimAtPath("/a")
         self.assertTrue(prim)
 
-        xAttr = prim.GetAttribute("x")
-        self.assertTrue(xAttr)
-        self.assertEqual(xAttr.Get(), 2.0)
+        cAttr = prim.GetAttribute("c")
+        self.assertTrue(cAttr)
+        self.assertEqual(cAttr.Get(), "c_v2")
 
-        yAttr = prim.GetAttribute("y")
-        self.assertTrue(yAttr)
-        self.assertEqual(yAttr.Get(), "b1_v2")
+        bAttr = prim.GetAttribute("b")
+        self.assertTrue(bAttr)
+        self.assertEqual(bAttr.Get(), "b_v2")
 
     def test_ReplaceFromJsonFile(self):
         """ 
         Open a layer with a side car json file storing the replace pairs
-        In a1_v2, replace reference to b1_v1 by b1_v2
-        In b1_v2, replace reference to c1_v1 by c1_v2
+        In a/v2, replace reference to b/v1 by b/v2
+        In b/v2, replace reference to c/v1 by c/v2
 
         Check x and y values
         """
         jsonFilePath = os.path.join(
-            TestReplaceResolver.assemblyRepo, ReplaceResolver.Tokens.replaceFileName
+            TestReplaceResolver.assemblyRepo, "a", "v1", ReplaceResolver.Tokens.replaceFileName
         )
 
-        self.assertEqual(jsonFilePath, "testReplaceResolver/assembly/replace.json")
-
-        pair1 = ["component/c1_v1.usda", "component/c1_v2.usda"]
-        pair2 = ["assembly/b1_v1.usda", "assembly/b1_v2.usda"]
+        pair1 = ["component/c/v1/c.usda", "component/c/v2/c.usda"]
+        pair2 = ["assembly/b/v1/b.usda", "assembly/b/v2/b.usda"]
 
         import json
 
         with open(jsonFilePath, "w") as outfile:
             json.dump([pair1, pair2], outfile)
 
-        filePath = os.path.join(TestReplaceResolver.assemblyRepo, "a1_v1.usda")
+        filePath = os.path.join(TestReplaceResolver.assemblyRepo, "a/v1/a.usda")
         os.environ["PXR_AR_DEFAULT_SEARCH_PATH"] = os.path.abspath(
             TestReplaceResolver.rootDir
         )
@@ -249,13 +292,13 @@ class TestReplaceResolver(unittest.TestCase):
         prim = stage.GetPrimAtPath("/a")
         self.assertTrue(prim)
 
-        xAttr = prim.GetAttribute("x")
-        self.assertTrue(xAttr)
-        self.assertEqual(xAttr.Get(), 2.0)
+        cAttr = prim.GetAttribute("c")
+        self.assertTrue(cAttr)
+        self.assertEqual(cAttr.Get(), "c_v2")
 
-        yAttr = prim.GetAttribute("y")
-        self.assertTrue(yAttr)
-        self.assertEqual(yAttr.Get(), "b1_v2")
+        bAttr = prim.GetAttribute("b")
+        self.assertTrue(bAttr)
+        self.assertEqual(bAttr.Get(), "b_v2")
 
 
 if __name__ == "__main__":
