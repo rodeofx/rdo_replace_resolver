@@ -21,21 +21,22 @@ def _PrepAssets(rootDir, assemblyRepo, componentRepo):
 
     a/v1/a.usda     b/v1/b.usda      c/v1/c.usda
     /a  ---(R)---> /b   ---(R)---> /c
-                                     x = 1                        
-                   b/v2/b.usda      c/v2/c.usda
-                     y = "b1_v2"     x = 2
+                                     c = "c_v1"                        
+                    
+                    b/v2/b.usda      c/v2/c.usda
+                     b = "b_v2"       c = "c_v2"
 
     a/v2/a.usda
     / customLayerData = replace string list
     /   ---(S)---> a1_v1.usda
 
-    x and y attributes are used to check if the stage is 
+    c and b attributes are used to check if the stage is 
     composed accordingly when our resolver replace versions.
     """
 
     context = ReplaceResolver.ReplaceResolverContext([os.path.abspath(rootDir)])
 
-    # Create c version 1
+    # Create layer "c.usda" version 1
     assetName = "c"
     assetVersion = "v1"
     c_v1_relativePath = _GetRelativePath("component", assetName, assetVersion)
@@ -54,7 +55,7 @@ def _PrepAssets(rootDir, assemblyRepo, componentRepo):
     cAttr.Set("c_v1")
     stage.Save()
 
-    # Create c version 2
+    # Create layer "c.usda" version 2
     assetVersion = "v2"
     c_v2_relativePath = _GetRelativePath("component", assetName, assetVersion)
     _path = os.path.join(rootDir, c_v2_relativePath)
@@ -73,7 +74,7 @@ def _PrepAssets(rootDir, assemblyRepo, componentRepo):
     cAttr.Set("c_v2")
     stage.Save()
 
-    # Create b version 1
+    # Create layer "b.usda" version 1
     assetName = "b"
     assetVersion = "v1"
 
@@ -85,14 +86,11 @@ def _PrepAssets(rootDir, assemblyRepo, componentRepo):
 
     modelAPI = Usd.ModelAPI(prim)
     modelAPI.SetKind(Kind.Tokens.assembly)
-    modelAPI.SetAssetName(assetName)
-    modelAPI.SetAssetVersion(assetVersion)
-    modelAPI.SetAssetIdentifier(b_v1_relativePath)
 
     prim.GetReferences().AddReference(c_v1_relativePath)
     stage.Save()
 
-    # Create b version 2
+    # Create layer "b.usda" version 2
     assetVersion = "v2"
 
     b_v2_relativePath = _GetRelativePath("assembly", assetName, assetVersion)
@@ -102,9 +100,6 @@ def _PrepAssets(rootDir, assemblyRepo, componentRepo):
     prim = stage.GetPrimAtPath("/b")
     modelAPI = Usd.ModelAPI(prim)
     modelAPI.SetKind(Kind.Tokens.assembly)
-    modelAPI.SetAssetName(assetName)
-    modelAPI.SetAssetVersion(assetVersion)
-    modelAPI.SetAssetIdentifier(b_v2_relativePath)
 
     stage.SetDefaultPrim(prim)
     bAttr = prim.CreateAttribute("b", Sdf.ValueTypeNames.String, True)
@@ -112,7 +107,7 @@ def _PrepAssets(rootDir, assemblyRepo, componentRepo):
 
     stage.Save()
 
-    # Create a version
+    # Create layer "a.usda" version 1
     assetName = "a"
     assetVersion = "v1"
 
@@ -124,14 +119,12 @@ def _PrepAssets(rootDir, assemblyRepo, componentRepo):
 
     modelAPI = Usd.ModelAPI(prim)
     modelAPI.SetKind(Kind.Tokens.assembly)
-    modelAPI.SetAssetName(assetName)
-    modelAPI.SetAssetVersion(assetVersion)
-    modelAPI.SetAssetIdentifier(a_v1_relativePath)
 
     prim.GetReferences().AddReference(b_v1_relativePath)
     stage.Save()
 
-    # Create a version 2 with customLayerData to store replace strings
+    # Create layer "a.usda" version 2 
+    # with customLayerData to store replace strings
     assetVersion = "v2"
 
     a_v2_relativePath = _GetRelativePath("assembly", assetName, assetVersion)
@@ -212,10 +205,18 @@ class TestReplaceResolver(unittest.TestCase):
         filePath = os.path.join(TestReplaceResolver.assemblyRepo, "b", "v1", "b.usda")
         stage = Usd.Stage.Open(filePath, pathResolverContext=context)
 
+        # "/b" originaly reference "c/v1" that should be replaced by "c/v2"
         prim = stage.GetPrimAtPath("/b")
         cAttr = prim.GetAttribute("c")
 
         self.assertEqual(cAttr.Get(), "c_v2")
+
+        # Check that asset name, version and path are matching c/v2
+        modelAPI = Usd.ModelAPI(prim)
+        self.assertEqual(modelAPI.GetKind(), Kind.Tokens.assembly)
+        self.assertEqual(modelAPI.GetAssetName(), "c")
+        self.assertEqual(modelAPI.GetAssetVersion(), "v2")
+        self.assertEqual(modelAPI.GetAssetIdentifier().path, "component/c/v2/c.usda")
 
     def test_ResolveFromStageTwoLevels(self):
         """ 
@@ -233,10 +234,19 @@ class TestReplaceResolver(unittest.TestCase):
         filePath = os.path.join(TestReplaceResolver.assemblyRepo, "a", "v1", "a.usda")
         stage = Usd.Stage.Open(filePath, pathResolverContext=context)
 
+        # "/a" originaly reference "c/v1" that should be replaced by "c/v2"
         prim = stage.GetPrimAtPath("/a")
         bAttr = prim.GetAttribute("b")
 
+        # This value exists only in "b/v2" layer ("b/v2/b.usda" sublayer "b/v1/b.usda")
         self.assertEqual(bAttr.Get(), "b_v2")
+
+        # Check that asset name, version and path are matching c/v2
+        modelAPI = Usd.ModelAPI(prim)
+        self.assertEqual(modelAPI.GetKind(), Kind.Tokens.assembly)
+        self.assertEqual(modelAPI.GetAssetName(), "c")
+        self.assertEqual(modelAPI.GetAssetVersion(), "v2")
+        self.assertEqual(modelAPI.GetAssetIdentifier().path, "component/c/v2/c.usda")
 
     def test_ReplaceFromUsdFile(self):
         """ 
@@ -252,16 +262,26 @@ class TestReplaceResolver(unittest.TestCase):
         )
         stage = Usd.Stage.Open(filePath)
 
+        # "a/v2/a.usda" sublayer "a/v1/a.usda" that is defining "/a"
         prim = stage.GetPrimAtPath("/a")
         self.assertTrue(prim)
 
+        # "/a" originaly reference "c/v1" that should be replaced by "c/v2"
         cAttr = prim.GetAttribute("c")
         self.assertTrue(cAttr)
         self.assertEqual(cAttr.Get(), "c_v2")
 
+        # This value exists only in "b/v2" layer ("b/v2" sublayer "b/v1")
         bAttr = prim.GetAttribute("b")
         self.assertTrue(bAttr)
         self.assertEqual(bAttr.Get(), "b_v2")
+
+        # Check that asset name, version and path are matching c/v2
+        modelAPI = Usd.ModelAPI(prim)
+        self.assertEqual(modelAPI.GetKind(), Kind.Tokens.assembly)
+        self.assertEqual(modelAPI.GetAssetName(), "c")
+        self.assertEqual(modelAPI.GetAssetVersion(), "v2")
+        self.assertEqual(modelAPI.GetAssetIdentifier().path, "component/c/v2/c.usda")
 
     def test_ReplaceFromJsonFile(self):
         """ 
@@ -299,6 +319,13 @@ class TestReplaceResolver(unittest.TestCase):
         bAttr = prim.GetAttribute("b")
         self.assertTrue(bAttr)
         self.assertEqual(bAttr.Get(), "b_v2")
+
+        # Check that asset name, version and path are matching c/v2
+        modelAPI = Usd.ModelAPI(prim)
+        self.assertEqual(modelAPI.GetKind(), Kind.Tokens.assembly)
+        self.assertEqual(modelAPI.GetAssetName(), "c")
+        self.assertEqual(modelAPI.GetAssetVersion(), "v2")
+        self.assertEqual(modelAPI.GetAssetIdentifier().path, "component/c/v2/c.usda")
 
 
 if __name__ == "__main__":
