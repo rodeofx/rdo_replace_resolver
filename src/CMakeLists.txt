@@ -113,6 +113,7 @@ install(
 
 # Tests
 
+set(TESTS_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/testenv)
 set(_testPYTHONPATH "PYTHONPATH=${INSTALL_PYTHONPACKAGE_DIR}/..:${USD_LOCATION}/lib/python:$ENV{PYTHONPATH}")
 set(_testPXR_PLUGINPATH_NAME "PXR_PLUGINPATH_NAME=${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/resources")
 
@@ -122,24 +123,14 @@ if(APPLE)
     set(_testDYLD_LIBRARY_PATH "DYLD_LIBRARY_PATH=${USD_LOCATION}/lib/:${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/lib")
 endif()
 
-install(
-    FILES testenv/testAsArDefaultResolver.py
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test
-)
-
 add_test(
     NAME testAsArDefaultResolver
-    COMMAND env ${_testDYLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python testAsArDefaultResolver.py
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
-
-install(
-    FILES testenv/testReplaceResolver.py
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test
-)
+    COMMAND env ${_testDYLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python ${TESTS_SOURCE_DIR}/testAsArDefaultResolver.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test(
     NAME testReplaceResolver
-    COMMAND env ${_testDYLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python testReplaceResolver.py
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
+    COMMAND env ${_testDYLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python ${TESTS_SOURCE_DIR}/testReplaceResolver.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 endif (PXR_ENABLE_PYTHON_SUPPORT)
