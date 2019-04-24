@@ -40,14 +40,22 @@ configure_file(
 # Install library
 install(
     TARGETS ${USDPLUGIN_NAME}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/lib
+    LIBRARY DESTINATION plugin/usd
 )
 
 # Install plugInfo
 install(
     FILES ${CMAKE_BINARY_DIR}/plugInfo.json
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/resources
+    DESTINATION plugin/usd/${USDPLUGIN_NAME}/resources
 )
+
+if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/plugin/usd/plugInfo.json)
+  configure_file(
+    ${USD_LOCATION}/plugin/usd/plugInfo.json
+    ${CMAKE_INSTALL_PREFIX}/plugin/usd/plugInfo.json
+    COPYONLY
+  )
+endif()
 
 # Python bindings
 if (PXR_ENABLE_PYTHON_SUPPORT)
@@ -96,7 +104,7 @@ target_link_libraries(${USDPLUGIN_PYTHON_NAME}
 )
 
 set(PYTHON_PACKAGE_RELATIVE_PATH lib/python2.7/site-packages/rdo)
-set(INSTALL_PYTHONPACKAGE_DIR  ${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/${PYTHON_PACKAGE_RELATIVE_PATH})
+set(INSTALL_PYTHONPACKAGE_DIR  ${CMAKE_INSTALL_PREFIX}/${PYTHON_PACKAGE_RELATIVE_PATH})
 set(INSTALL_WRAPPER_DIR ${INSTALL_PYTHONPACKAGE_DIR}/${MODULE_NAME})
 
 install(

@@ -15,5 +15,5 @@ add_subdirectory(src)
 # Install etc folder
 install(
   DIRECTORY etc
-  DESTINATION ./${USDPLUGIN_NAME}
+  DESTINATION .
 )
