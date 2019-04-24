@@ -7,7 +7,6 @@ option(PXR_ENABLE_PYTHON_SUPPORT "Build Python wrapper and Python based tests" O
 
 include(${USD_LOCATION}/pxrConfig.cmake)
 
-set(CMAKE_INSTALL_RPATH ${USD_LOCATION}/lib)
 set(USDPLUGIN_NAME replaceResolver)
 
 add_subdirectory(src)
