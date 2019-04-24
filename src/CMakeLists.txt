@@ -125,22 +125,25 @@ install(
 
 set(TESTS_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/testenv)
 set(_testPYTHONPATH "PYTHONPATH=${INSTALL_PYTHONPACKAGE_DIR}/..:${USD_LOCATION}/lib/python:$ENV{PYTHONPATH}")
-set(_testPXR_PLUGINPATH_NAME "PXR_PLUGINPATH_NAME=${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/resources")
+set(_testPXR_PLUGINPATH_NAME "PXR_PLUGINPATH_NAME=${CMAKE_INSTALL_PREFIX}/plugin/usd:${PXR_PLUGINPATH_NAME}")
 
 if(APPLE)
     # TODO: In theory it should not be necessary to set DYLD_LIBRARY_PATH.
     # I could not figure out how to make plugInfo work with python bindings on my Mac.
-    set(_testDYLD_LIBRARY_PATH "DYLD_LIBRARY_PATH=${USD_LOCATION}/lib/:${CMAKE_INSTALL_PREFIX}/${USDPLUGIN_NAME}/lib")
+    set(_testLD_LIBRARY_PATH "DYLD_LIBRARY_PATH=${USD_LOCATION}/lib:${USD_LOCATION}/lib64:${LD_LIBRARY_PATH}")
+
+else()
+    set(_testLD_LIBRARY_PATH "LD_LIBRARY_PATH=${USD_LOCATION}/lib:${USD_LOCATION}/lib64:${LD_LIBRARY_PATH}")
 endif()
 
 add_test(
     NAME testAsArDefaultResolver
-    COMMAND env ${_testDYLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python ${TESTS_SOURCE_DIR}/testAsArDefaultResolver.py
+    COMMAND env ${_testLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python ${TESTS_SOURCE_DIR}/testAsArDefaultResolver.py
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test(
     NAME testReplaceResolver
-    COMMAND env ${_testDYLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python ${TESTS_SOURCE_DIR}/testReplaceResolver.py
+    COMMAND env ${_testLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python ${TESTS_SOURCE_DIR}/testReplaceResolver.py
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 endif (PXR_ENABLE_PYTHON_SUPPORT)
