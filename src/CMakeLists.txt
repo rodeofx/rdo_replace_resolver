@@ -11,7 +11,7 @@ add_library(${USDPLUGIN_NAME}
 )
 
 target_include_directories(${USDPLUGIN_NAME}
-    PRIVATE  
+    PRIVATE
         ${PXR_INCLUDE_DIRS}
 )
 
@@ -33,8 +33,8 @@ target_compile_features(${USDPLUGIN_NAME}
 set(libraryName ${USDPLUGIN_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX})
 
 configure_file(
-    plugInfo.json.in 
-    ${CMAKE_BINARY_DIR}/plugInfo.json 
+    plugInfo.json.in
+    ${CMAKE_BINARY_DIR}/plugInfo.json
     @ONLY)
 
 # Install library
@@ -82,7 +82,7 @@ set_target_properties(${USDPLUGIN_PYTHON_NAME}
   INSTALL_RPATH "$ORIGIN/../../../../../plugin/usd"
 )
 target_include_directories(${USDPLUGIN_PYTHON_NAME}
-    PRIVATE  
+    PRIVATE
         ${PXR_INCLUDE_DIRS}
 )
 
