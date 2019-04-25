@@ -145,18 +145,9 @@ endif()
 set(PYTHON_COMMAND ${CMAKE_COMMAND} -E env ${_testLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python -B)
 
 add_test(
-    NAME testImportReplaceResolver
-    COMMAND ${PYTHON_COMMAND} ${TESTS_SOURCE_DIR}/testImportReplaceResolver.py
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-
-add_test(
-    NAME testAsArDefaultResolver
-    COMMAND ${PYTHON_COMMAND} ${TESTS_SOURCE_DIR}/testAsArDefaultResolver.py
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-
-add_test(
-    NAME testReplaceResolver
-    COMMAND ${PYTHON_COMMAND} ${TESTS_SOURCE_DIR}/testReplaceResolver.py
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  NAME testReplaceResolver
+  COMMAND ${PYTHON_COMMAND} -m unittest discover -s ${CMAKE_CURRENT_SOURCE_DIR}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 endif (PXR_ENABLE_PYTHON_SUPPORT)
