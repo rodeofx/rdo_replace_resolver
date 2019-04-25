@@ -142,7 +142,7 @@ else()
     set(_testLD_LIBRARY_PATH "LD_LIBRARY_PATH=${USD_LOCATION}/lib:${USD_LOCATION}/lib64:${LD_LIBRARY_PATH}")
 endif()
 
-set(PYTHON_COMMAND ${CMAKE_COMMAND} -E env ${_testLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python)
+set(PYTHON_COMMAND ${CMAKE_COMMAND} -E env ${_testLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python -B)
 
 add_test(
     NAME testImportReplaceResolver
