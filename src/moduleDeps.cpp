@@ -12,11 +12,7 @@ TF_REGISTRY_FUNCTION(TfScriptModuleLoader) {
     // List of direct dependencies for this library.
     const std::vector<TfToken> reqs = {
         TfToken("ar"),
-        TfToken("arch"),
-        TfToken("js"),
-        TfToken("plug"),
-        TfToken("tf"),
-        TfToken("vt")
+        TfToken("sdf")
     };
     TfScriptModuleLoader::GetInstance().
         RegisterLibrary(TfToken("replaceResolver"), TfToken("rdo.ReplaceResolver"), reqs);
