@@ -2,6 +2,7 @@ if(USE_HOUDINI_USD)
   include(pxrConfigHoudini)
 elseif(EXISTS ${USD_LOCATION}/pxrConfig.cmake)
   include(${USD_LOCATION}/pxrConfig.cmake)
+  set(USD_PLUGINS_DIR ${USD_LOCATION}/plugin/usd)
 endif()
 
 include(FindPackageHandleStandardArgs)

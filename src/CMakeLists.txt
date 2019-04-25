@@ -54,7 +54,7 @@ install(
 
 if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/plugin/usd/plugInfo.json)
   configure_file(
-    ${USD_LOCATION}/plugin/usd/plugInfo.json
+    ${USD_PLUGINS_DIR}/plugInfo.json
     ${CMAKE_INSTALL_PREFIX}/plugin/usd/plugInfo.json
     COPYONLY
   )
