@@ -145,6 +145,11 @@ endif()
 set(PYTHON_COMMAND ${CMAKE_COMMAND} -E env ${_testLD_LIBRARY_PATH} ${_testPYTHONPATH} ${_testPXR_PLUGINPATH_NAME} python)
 
 add_test(
+    NAME testImportReplaceResolver
+    COMMAND ${PYTHON_COMMAND} ${TESTS_SOURCE_DIR}/testImportReplaceResolver.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+add_test(
     NAME testAsArDefaultResolver
     COMMAND ${PYTHON_COMMAND} ${TESTS_SOURCE_DIR}/testAsArDefaultResolver.py
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
