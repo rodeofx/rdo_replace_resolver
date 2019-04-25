@@ -60,11 +60,6 @@ foreach(C ${_COMPONENTS})
 
   add_library(${C} SHARED IMPORTED)
 
-  # message("LIB: ${C}")
-  # message("INTERFACE_INCLUDE_DIRECTORIES: ${INCLUDE_DIRECTORIES_${C}}")
-  # message("IMPORTED_LINK_INTERFACE_LIBRARIES_RELEASE: ${LINK_INTERFACE_${C}}")
-  # message("****")
-
   set_target_properties(${C}
     PROPERTIES
     INTERFACE_COMPILE_DEFINITIONS "PXR_PYTHON_ENABLED=1"
