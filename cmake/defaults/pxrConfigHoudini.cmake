@@ -2,6 +2,7 @@ set(CMAKE_IMPORT_FILE_VERSION 1)
 
 set(PXR_INCLUDE_DIRS ${USD_LOCATION}/toolkit/include)
 set(USD_PLUGINS_DIR ${USD_LOCATION}/dsolib/usd_plugins)
+set(USD_PYTHONPATH ${USD_LOCATION}/python/lib/python2.7/site-packages)
 
 set(_DSOLIB_DIR "${USD_LOCATION}/dsolib")
 set(_PYTHONLIB_DIR "${USD_LOCATION}/python/lib")
