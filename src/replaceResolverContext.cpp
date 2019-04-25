@@ -1,6 +1,8 @@
 // Copyright 2019 Rodeo FX.  All rights reserved.
 #include "replaceResolverContext.h"
 
+#include "boost_include_wrapper.h"
+
 #include <pxr/pxr.h>
 #include <pxr/base/tf/diagnostic.h>
 #include <pxr/base/tf/hash.h>
@@ -8,7 +10,7 @@
 #include <pxr/base/tf/pathUtils.h>
 #include <pxr/base/tf/stringUtils.h>
 
-#include <boost/functional/hash.hpp>
+#include BOOST_INCLUDE(functional/hash.hpp)
 
 PXR_NAMESPACE_OPEN_SCOPE
 
@@ -101,14 +103,14 @@ hash_value(const ReplaceResolverContext& context)
 {
     size_t hash = 0;
     for (const std::string& p : context.GetSearchPath()) {
-        boost::hash_combine(hash, TfHash()(p));
+        BOOST_NAMESPACE::hash_combine(hash, TfHash()(p));
     }
 
     auto replaceMap = context.GetReplaceMap();
     for (auto it = replaceMap.begin(); it != replaceMap.end(); ++it) 
     {
-        boost::hash_combine(hash, TfHash()(it->first));
-        boost::hash_combine(hash, TfHash()(it->second));
+        BOOST_NAMESPACE::hash_combine(hash, TfHash()(it->first));
+        BOOST_NAMESPACE::hash_combine(hash, TfHash()(it->second));
     }
     return hash;
 }

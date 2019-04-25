@@ -81,6 +81,8 @@ foreach(C ${_COMPONENTS})
   list(APPEND PXR_LIBRARIES ${C})
 endforeach()
 
+set(BOOST_NAMESPACE hboost)
+
 unset(_COMPONENTS)
 unset(_LIB_TBB)
 unset(_LIB_PYTHON)

@@ -5,6 +5,8 @@ project(replace-resolver VERSION 0.1.0 LANGUAGES CXX)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/defaults)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
+include(handleBoostNamespace)
+
 enable_testing()
 
 option(PXR_ENABLE_PYTHON_SUPPORT "Build Python wrapper and Python based tests" ON)

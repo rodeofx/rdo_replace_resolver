@@ -1,5 +1,6 @@
 add_library(${USDPLUGIN_NAME}
     SHARED
+    boost_include_wrapper.h
     debugCodes.cpp
     debugCodes.h
     replaceResolver.cpp
@@ -9,6 +10,8 @@ add_library(${USDPLUGIN_NAME}
     tokens.cpp
     tokens.h
 )
+
+set_boost_namespace(${USDPLUGIN_NAME})
 
 target_include_directories(${USDPLUGIN_NAME}
     PRIVATE
@@ -70,12 +73,15 @@ set(MODULE_NAME "${LIBNAME_FL}${LIBNAME_SUFFIX}")
 
 add_library(${USDPLUGIN_PYTHON_NAME}
     SHARED
+    boost_include_wrapper.h
     module.cpp
     moduleDeps.cpp
     wrapReplaceResolver.cpp
     wrapReplaceResolverContext.cpp
     wrapTokens.cpp
 )
+
+set_boost_namespace(${USDPLUGIN_PYTHON_NAME})
 
 set_target_properties(${USDPLUGIN_PYTHON_NAME}
   PROPERTIES

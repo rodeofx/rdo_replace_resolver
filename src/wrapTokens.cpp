@@ -1,5 +1,8 @@
 // Copyright 2019 Rodeo FX.  All rights reserved.
-#include <boost/python/class.hpp>
+
+#include "boost_include_wrapper.h"
+
+#include BOOST_INCLUDE(python/class.hpp)
 #include "tokens.h"
 
 PXR_NAMESPACE_USING_DIRECTIVE
@@ -28,19 +31,19 @@ void
 _AddToken(T& cls, const char* name, const TfToken& token)
 {
     cls.add_static_property(name,
-                            boost::python::make_function(
+                            BOOST_NAMESPACE::python::make_function(
                                 _WrapStaticToken(&token),
-                                boost::python::return_value_policy<
-                                    boost::python::return_by_value>(),
-                                boost::mpl::vector1<std::string>()));
+                                BOOST_NAMESPACE::python::return_value_policy<
+                                    BOOST_NAMESPACE::python::return_by_value>(),
+                                BOOST_NAMESPACE::mpl::vector1<std::string>()));
 }
 
 } // anonymous
 
 void wrapReplaceResolverTokens()
 {
-    boost::python::class_<ReplaceResolverTokensType, boost::noncopyable>
-        cls("Tokens", boost::python::no_init);
+    BOOST_NAMESPACE::python::class_<ReplaceResolverTokensType, BOOST_NAMESPACE::noncopyable>
+        cls("Tokens", BOOST_NAMESPACE::python::no_init);
     _AddToken(cls, "replacePairs", ReplaceResolverTokens->replacePairs);
     _AddToken(cls, "replaceFileName", ReplaceResolverTokens->replaceFileName);
 }
