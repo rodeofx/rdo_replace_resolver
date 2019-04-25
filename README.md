@@ -133,7 +133,7 @@ it will be used to replace substrings. This can be used to override a USD file i
 ]
 ```
 
-# Debug code
+## Debug code
 
 Adding following tokens to *TD_DEBUG* will print ReplaceResolver information
 * REPLACERESOLVER_PATH
