@@ -1,4 +1,6 @@
-if(EXISTS ${USD_LOCATION}/pxrConfig.cmake)
+if(USE_HOUDINI_USD)
+  include(pxrConfigHoudini)
+elseif(EXISTS ${USD_LOCATION}/pxrConfig.cmake)
   include(${USD_LOCATION}/pxrConfig.cmake)
 endif()
 
