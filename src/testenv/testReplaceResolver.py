@@ -1,4 +1,9 @@
 # Copyright 2019 Rodeo FX.  All rights reserved.
+
+import os
+import unittest
+import shutil
+
 from pxr import Ar
 from pxr import Kind
 from pxr import Sdf
@@ -6,10 +11,6 @@ from pxr import Usd
 from pxr import Vt
 
 from rdo import ReplaceResolver
-
-import os
-import unittest
-import shutil
 
 
 def _GetRelativePath(dirName, asset, version):

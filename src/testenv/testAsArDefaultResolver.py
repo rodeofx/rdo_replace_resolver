@@ -28,11 +28,13 @@
 """
 
 import os
+import shutil
+import unittest
+
 from pxr import Ar
+
 from rdo import ReplaceResolver
 
-import unittest
-import shutil
 
 class TestArDefaultResolver(unittest.TestCase):
     def assertPathsEqual(self, path1, path2):
