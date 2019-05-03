@@ -159,5 +159,5 @@ $ cmake -DUSD_LOCATION=/opt/Pixar/USD
 When building against Houdini the `USE_HOUDINI_USD` flag needs to be `ON` and `USD_LOCATION` set to the root folder of Houdini.
 
 ``` sh
-$ cmake -DUSD_LOCATION=/opt/sidefx/hfs18.0.78 -DUSE_HOUDINI_USD=ON
+$ cmake -DUSD_LOCATION=/opt/sidefx/hfs<version> -DUSE_HOUDINI_USD=ON
 ```
