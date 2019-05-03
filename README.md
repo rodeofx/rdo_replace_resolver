@@ -133,7 +133,7 @@ it will be used to replace substrings. This can be used to override a USD file i
 ]
 ```
 
-# Debug code
+## Debug code
 
 Adding following tokens to *TD_DEBUG* will print ReplaceResolver information
 * REPLACERESOLVER_PATH
@@ -141,3 +141,23 @@ Adding following tokens to *TD_DEBUG* will print ReplaceResolver information
 * REPLACERESOLVER_CURRENTCONTEXT
 
 `export TF_TOKEN=REPLACERESOLVER_PATH `
+
+## Building the Replace Resolver
+
+The Replace Resolver uses the [CMake](https://cmake.org/) build system. The `USD_LOCATION` needs to be specified.
+
+### Building against a vanilla USD distribution
+
+In this standard mode, the build system is looking for the `pxrConfig.cmake` file.
+
+``` sh
+$ cmake -DUSD_LOCATION=/opt/Pixar/USD
+```
+
+### Building against an Houdini USD distribution
+
+When building against Houdini the `USE_HOUDINI_USD` flag needs to be `ON` and `USD_LOCATION` set to the root folder of Houdini.
+
+``` sh
+$ cmake -DUSD_LOCATION=/opt/sidefx/hfs<version> -DUSE_HOUDINI_USD=ON
+```

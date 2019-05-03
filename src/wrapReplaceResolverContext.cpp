@@ -1,16 +1,18 @@
 // Copyright 2019 Rodeo FX.  All rights reserved.
 #include "replaceResolverContext.h"
 
-#include <boost/python/class.hpp>
-#include <boost/python/operators.hpp>
-#include <boost/python/return_by_value.hpp>
-#include <boost/python/return_value_policy.hpp>
+#include "boost_include_wrapper.h"
+
+#include BOOST_INCLUDE(python/class.hpp)
+#include BOOST_INCLUDE(python/operators.hpp)
+#include BOOST_INCLUDE(python/return_by_value.hpp)
+#include BOOST_INCLUDE(python/return_value_policy.hpp)
 
 #include <pxr/pxr.h>
 #include <pxr/usd/ar/pyResolverContext.h>
 #include <pxr/base/tf/pyUtils.h>
 
-using namespace boost::python;
+using namespace BOOST_NAMESPACE::python;
 
 PXR_NAMESPACE_USING_DIRECTIVE
 

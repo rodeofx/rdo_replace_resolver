@@ -8,7 +8,7 @@
                     }
                 }
             },
-            "LibraryPath": "lib/@libraryName@",
+            "LibraryPath": "../@libraryName@",
             "Root": "..",
             "Name": "ReplaceResolver",
             "Type": "library"
